@@ -1,0 +1,4 @@
+solution/bin/
+solution/obj/
+solution/*.zip
+artifacts/
