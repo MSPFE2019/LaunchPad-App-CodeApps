@@ -71,10 +71,11 @@ Run **Provision Dataverse solution** from the Actions tab using
 `workflow_dispatch`. The workflow invokes the same idempotent PowerShell
 script and does not export or commit generated solution archives.
 
-## Initialize and pack the unmanaged solution
+## Reference the Code App and pack the unmanaged solution
 
-Authenticate PAC CLI and initialize the solution project with a reference to
-the Code App project:
+The PAC-generated `solution/LaunchPadApp.cdsproj` project is checked into this
+repository and configured for unmanaged output. Authenticate PAC CLI and add a
+reference to the Code App project:
 
 ```powershell
 pac auth create `
@@ -92,16 +93,16 @@ pac auth select --name LaunchPadDataverse
 pac solution online-version --solution-name LaunchPadApp
 
 pac solution pack `
-  --folder .\solution `
+  --folder .\solution\src `
   --zipfile .\artifacts\LaunchPadApp-unmanaged.zip `
   --packagetype Unmanaged
 ```
 
 See [`solution/README.md`](solution/README.md) for the equivalent
 `pac solution init`, `pac solution add-reference`, export, unpack, and pack
-commands. Since live Dataverse authentication is required, this repository
-contains source and executable instructions rather than a fabricated
-`solution.zip`.
+commands. Dataverse table metadata should be synchronized into this project
+from the live unmanaged solution after provisioning; the repository does not
+fabricate exported metadata or a `solution.zip`.
 
 ## Import the unmanaged solution
 

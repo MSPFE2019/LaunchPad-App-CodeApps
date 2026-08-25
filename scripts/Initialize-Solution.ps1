@@ -14,14 +14,17 @@ if (-not (Get-Command pac -ErrorAction SilentlyContinue)) {
 
 $resolvedProjectPath = (Resolve-Path $CodeAppProjectPath).Path
 $resolvedSolutionDirectory = [System.IO.Path]::GetFullPath($SolutionDirectory)
+$solutionProject = Join-Path $resolvedSolutionDirectory "LaunchPadApp.cdsproj"
 
-pac solution init `
-    --publisher-name "LaunchPad" `
-    --publisher-prefix "lppac" `
-    --outputDirectory $resolvedSolutionDirectory
+if (-not (Test-Path $solutionProject)) {
+    pac solution init `
+        --publisher-name "LaunchPad" `
+        --publisher-prefix "lppac" `
+        --outputDirectory $resolvedSolutionDirectory
 
-if ($LASTEXITCODE -ne 0) {
-    throw "pac solution init failed with exit code $LASTEXITCODE."
+    if ($LASTEXITCODE -ne 0) {
+        throw "pac solution init failed with exit code $LASTEXITCODE."
+    }
 }
 
 Push-Location $resolvedSolutionDirectory

@@ -1,12 +1,13 @@
 # LaunchPadApp unmanaged solution
 
-This directory is the target for the source-controlled Power Platform solution
-project. The generated Dataverse solution is **unmanaged**. Power Platform CLI
-normalizes the requested publisher prefix `LPPAC` to lowercase `lppac`, so all
-Dataverse logical names use `lppac_`.
+This directory contains the source-controlled `LaunchPadApp.cdsproj` Power
+Platform solution generated with `pac solution init`. Its package type and
+manifest are explicitly **unmanaged**. Power Platform CLI normalizes the
+requested publisher prefix `LPPAC` to lowercase `lppac`, so all Dataverse
+logical names use `lppac_`.
 
-Do not commit exported solution ZIP files. Generate the solution project after
-provisioning the online solution:
+Do not commit exported solution ZIP files. Authenticate and add the Code App
+project reference after that project is available:
 
 ```powershell
 pac auth create `
@@ -22,7 +23,8 @@ pac auth select --name LaunchPadDataverse
   -CodeAppProjectPath "<path-to-LaunchPad-Code-App-project>"
 ```
 
-The helper runs these PAC CLI conventions:
+The helper detects the checked-in solution and runs `pac solution
+add-reference`. The original project was generated using:
 
 ```powershell
 pac solution init `
@@ -39,7 +41,7 @@ Build or pack source as an unmanaged ZIP:
 
 ```powershell
 pac solution pack `
-  --folder .\solution `
+  --folder .\solution\src `
   --zipfile .\artifacts\LaunchPadApp-unmanaged.zip `
   --packagetype Unmanaged
 ```
@@ -56,7 +58,7 @@ pac solution export `
 
 pac solution unpack `
   --zipfile .\artifacts\LaunchPadApp-unmanaged.zip `
-  --folder .\solution `
+  --folder .\solution\src `
   --packagetype Unmanaged
 ```
 
