@@ -116,7 +116,8 @@ function Invoke-DataverseRequest {
         $request.Body = $Body | ConvertTo-Json -Depth 20
     }
 
-    return Invoke-RestMethod @request
+    $response = Invoke-RestMethod @request
+    return $response
 }
 
 function Get-SingleRecord {
@@ -127,7 +128,15 @@ function Get-SingleRecord {
         [string]$Description
     )
 
-    $records = @(Invoke-DataverseRequest -Method Get -RelativePath $RelativePath).value
+    $response = @(Invoke-DataverseRequest -Method Get -RelativePath $RelativePath)
+    if ($response.Count -eq 1 -and $null -ne $response[0].PSObject.Properties["value"]) {
+        $records = @($response[0].value)
+    }
+    else {
+        # Windows PowerShell can unwrap OData collection responses into records.
+        $records = $response
+    }
+
     if ($records.Count -gt 1) {
         throw "More than one $Description matched. Refine the unique name before continuing."
     }
