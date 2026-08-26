@@ -75,7 +75,7 @@ script and does not export or commit generated solution archives.
 
 The PAC-generated `solution/LaunchPadApp.cdsproj` project is checked into this
 repository and configured for unmanaged output. Authenticate PAC CLI and add a
-reference to the Code App project:
+Code App to the online unmanaged solution:
 
 ```powershell
 pac auth create `
@@ -88,7 +88,7 @@ pac auth create `
 pac auth select --name LaunchPadDataverse
 
 .\scripts\Initialize-Solution.ps1 `
-  -CodeAppProjectPath "<path-to-LaunchPad-Code-App-project>"
+  -CodeAppProjectPath "<path-to-Code-App-directory>"
 
 pac solution online-version --solution-name LaunchPadApp
 
@@ -103,6 +103,13 @@ See [`solution/README.md`](solution/README.md) for the equivalent
 commands. Dataverse table metadata should be synchronized into this project
 from the live unmanaged solution after provisioning; the repository does not
 fabricate exported metadata or a `solution.zip`.
+
+For a Power Apps Code App, `-CodeAppProjectPath` must identify the directory
+containing `power.config.json`. The helper runs `pac code push --solutionName
+LaunchPadApp` from that directory. Do not pass
+`solution/LaunchPadApp.cdsproj`; that is the receiving Dataverse solution
+project. For PCF or other supported component projects, the helper instead
+runs `pac solution add-reference` for a `.pcfproj` or `.csproj`.
 
 ## Import the unmanaged solution
 

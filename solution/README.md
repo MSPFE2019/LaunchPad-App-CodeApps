@@ -6,8 +6,8 @@ manifest are explicitly **unmanaged**. Power Platform CLI normalizes the
 requested publisher prefix `LPPAC` to lowercase `lppac`, so all Dataverse
 logical names use `lppac_`.
 
-Do not commit exported solution ZIP files. Authenticate and add the Code App
-project reference after that project is available:
+Do not commit exported solution ZIP files. Authenticate and publish the Code
+App into this online solution after its project is available:
 
 ```powershell
 pac auth create `
@@ -20,11 +20,19 @@ pac auth create `
 pac auth select --name LaunchPadDataverse
 
 .\scripts\Initialize-Solution.ps1 `
-  -CodeAppProjectPath "<path-to-LaunchPad-Code-App-project>"
+  -CodeAppProjectPath "<path-to-Code-App-directory>"
 ```
 
-The helper detects the checked-in solution and runs `pac solution
-add-reference`. The original project was generated using:
+For a directory containing `power.config.json`, the helper runs:
+
+```powershell
+Set-Location "<path-to-Code-App-directory>"
+pac code push --solutionName LaunchPadApp
+```
+
+For a `.csproj` or `.pcfproj` component, it detects the checked-in solution and
+runs `pac solution add-reference`. The solution project was originally
+generated using:
 
 ```powershell
 pac solution init `
@@ -33,9 +41,13 @@ pac solution init `
   --outputDirectory .\solution
 
 Set-Location .\solution
-pac solution add-reference --path "<path-to-LaunchPad-Code-App-project>"
+pac solution add-reference --path "<path-to-Code-App.csproj>"
 pac solution online-version --solution-name LaunchPadApp
 ```
+
+`pac solution add-reference` accepts component `.csproj` and `.pcfproj`
+projects. It does not accept this directory's `LaunchPadApp.cdsproj`; Code Apps
+are associated with the solution by `pac code push --solutionName`.
 
 Build or pack source as an unmanaged ZIP:
 

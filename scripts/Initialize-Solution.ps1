@@ -12,30 +12,99 @@ if (-not (Get-Command pac -ErrorAction SilentlyContinue)) {
     throw "Power Platform CLI (pac) is required and was not found on PATH."
 }
 
-$resolvedProjectPath = (Resolve-Path $CodeAppProjectPath).Path
-$resolvedSolutionDirectory = [System.IO.Path]::GetFullPath($SolutionDirectory)
-$solutionProject = Join-Path $resolvedSolutionDirectory "LaunchPadApp.cdsproj"
+function Invoke-PacCommand {
+    param(
+        [Parameter(Mandatory)]
+        [string[]]$Arguments,
+        [Parameter(Mandatory)]
+        [string]$Description
+    )
 
-if (-not (Test-Path $solutionProject)) {
-    pac solution init `
-        --publisher-name "LaunchPad" `
-        --publisher-prefix "lppac" `
-        --outputDirectory $resolvedSolutionDirectory
-
+    & pac @Arguments
     if ($LASTEXITCODE -ne 0) {
-        throw "pac solution init failed with exit code $LASTEXITCODE."
+        throw "$Description failed with exit code $LASTEXITCODE."
     }
+}
+
+$projectItem = Get-Item (Resolve-Path $CodeAppProjectPath).Path
+$codeAppDirectory = $null
+$resolvedProjectPath = $null
+
+if ($projectItem.PSIsContainer) {
+    if (Test-Path (Join-Path $projectItem.FullName "power.config.json")) {
+        $codeAppDirectory = $projectItem.FullName
+    }
+    else {
+        $referenceProjects = @(Get-ChildItem $projectItem.FullName -File | Where-Object {
+                $_.Extension -in ".csproj", ".pcfproj"
+            })
+
+        if ($referenceProjects.Count -ne 1) {
+            throw "Project directory '$($projectItem.FullName)' must contain power.config.json or exactly one .csproj or .pcfproj file."
+        }
+
+        $resolvedProjectPath = $referenceProjects[0].FullName
+    }
+}
+elseif ($projectItem.Name -eq "power.config.json") {
+    $codeAppDirectory = $projectItem.DirectoryName
+}
+elseif ($projectItem.Extension -in ".csproj", ".pcfproj") {
+    $resolvedProjectPath = $projectItem.FullName
+}
+elseif ($projectItem.Extension -eq ".cdsproj") {
+    throw "'$($projectItem.FullName)' is the Dataverse solution project. For a Code App, -CodeAppProjectPath must point to the directory containing power.config.json. PAC cannot add a .cdsproj as a project reference."
+}
+else {
+    throw "Unsupported project '$($projectItem.FullName)'. Specify a Code App directory containing power.config.json, a .csproj, or a .pcfproj."
+}
+
+if ($null -ne $codeAppDirectory) {
+    Push-Location $codeAppDirectory
+    try {
+        Invoke-PacCommand `
+            -Description "pac code push" `
+            -Arguments @("code", "push", "--solutionName", "LaunchPadApp")
+    }
+    finally {
+        Pop-Location
+    }
+
+    Write-Host "Published Code App '$codeAppDirectory' into the unmanaged LaunchPadApp solution."
+    return
+}
+
+$resolvedSolutionDirectory = [System.IO.Path]::GetFullPath($SolutionDirectory)
+$solutionProjects = if (Test-Path $resolvedSolutionDirectory) {
+    @(Get-ChildItem $resolvedSolutionDirectory -Filter "*.cdsproj" -File)
+}
+else {
+    @()
+}
+
+if ($solutionProjects.Count -gt 1) {
+    throw "Solution directory '$resolvedSolutionDirectory' contains multiple .cdsproj files."
+}
+
+if ($solutionProjects.Count -eq 0) {
+    Invoke-PacCommand `
+        -Description "pac solution init" `
+        -Arguments @(
+            "solution", "init",
+            "--publisher-name", "LaunchPad",
+            "--publisher-prefix", "lppac",
+            "--outputDirectory", $resolvedSolutionDirectory
+        )
 }
 
 Push-Location $resolvedSolutionDirectory
 try {
-    pac solution add-reference --path $resolvedProjectPath
-    if ($LASTEXITCODE -ne 0) {
-        throw "pac solution add-reference failed with exit code $LASTEXITCODE."
-    }
+    Invoke-PacCommand `
+        -Description "pac solution add-reference" `
+        -Arguments @("solution", "add-reference", "--path", $resolvedProjectPath)
 }
 finally {
     Pop-Location
 }
-Write-Host "Solution project initialized at '$resolvedSolutionDirectory'."
-Write-Host "Solution project initialized at '$resolvedSolutionDirectory'."
+
+Write-Host "Added component reference '$resolvedProjectPath' to the solution in '$resolvedSolutionDirectory'."
