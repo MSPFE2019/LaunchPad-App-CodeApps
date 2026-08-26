@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "appId": "c104b1ce-3019-4a62-9b12-f8ab2694daab",
+  "appDisplayName": "LaunchPad",
+  "region": "gccmoderate",
+  "appType": "CodeApp",
+  "description": "Search and launch approved applications stored in Dataverse.",
+  "environmentId": "49bbfcac-da3f-e270-b01a-908cebe939c4",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "logoPath": "Default",
+  "localAppUrl": "http://localhost:5173/",
+  "connectionReferences": {},
+  "databaseReferences": {
+    "default.cds": {
+      "databaseDetails": {
+        "environmentName": "default.cds",
+        "referenceType": "Environmental",
+        "linkedEnvironmentMetadata": {
+          "resourceId": "49bbfcac-da3f-e270-b01a-908cebe939c4",
+          "friendlyName": "Tenant Dev",
+          "uniqueName": "unq5638f29c5499f0118707001dd80aa",
+          "domainName": "orgd09bf0c1",
+          "instanceUrl": "https://orgd09bf0c1.crm9.dynamics.com/",
+          "instanceApiUrl": "https://orgd09bf0c1.api.crm9.dynamics.com",
+          "baseLanguage": 1033,
+          "instanceState": "Ready"
+        }
+      },
+      "dataSources": {
+        "lppac_launchpadapp": {
+          "entitySetName": "lppac_launchpadapps",
+          "logicalName": "lppac_launchpadapp",
+          "isHidden": false
+        }
+      }
+    }
+  }
+}

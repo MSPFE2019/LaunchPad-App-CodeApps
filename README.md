@@ -14,6 +14,8 @@ automation therefore consistently uses `lppac` for logical names such as
 
 - Power Platform CLI (`pac`) installed for solution initialization, reference
   management, export, packing, and import.
+- Power Apps CLI (`pa`) installed for Code App development and publishing:
+  `npm install --global @microsoft/power-apps-cli @microsoft/power-apps`.
 - An Azure AD app registration with a client secret.
 - The app registration configured as an application user in the target
   Dataverse environment.
@@ -71,7 +73,34 @@ Run **Provision Dataverse solution** from the Actions tab using
 `workflow_dispatch`. The workflow invokes the same idempotent PowerShell
 script and does not export or commit generated solution archives.
 
-## Reference the Code App and pack the unmanaged solution
+## Run and publish the Code App
+
+The complete React Code App is in [`app/`](app/). It is registered in the
+target US Government environment and included in the unmanaged `LaunchPadApp`
+solution. To run it locally:
+
+```powershell
+Set-Location .\app
+npm install
+npm run dev
+```
+
+To publish an update, authenticate both CLIs and run the helper:
+
+```powershell
+pac auth create --environment $env:DATAVERSE_URL
+pa auth login --cloud usgov --environment-id 49bbfcac-da3f-e270-b01a-908cebe939c4
+
+Set-Location ..
+.\scripts\Initialize-Solution.ps1 -CodeAppProjectPath .\app
+```
+
+The helper resolves the live `LaunchPadApp` solution ID with `pac solution
+list --json`, then uses `pa app push --solution-id` to publish the Code App.
+The newer `pa` CLI is required because legacy `pac code push` selects an
+incorrect commercial Code Apps endpoint for US Government environments.
+
+## Pack the unmanaged solution
 
 The PAC-generated `solution/LaunchPadApp.cdsproj` project is checked into this
 repository and configured for unmanaged output. Authenticate PAC CLI and add a
@@ -105,8 +134,7 @@ from the live unmanaged solution after provisioning; the repository does not
 fabricate exported metadata or a `solution.zip`.
 
 For a Power Apps Code App, `-CodeAppProjectPath` must identify the directory
-containing `power.config.json`. The helper runs `pac code push --solutionName
-LaunchPadApp` from that directory. Do not pass
+containing `power.config.json`. Do not pass
 `solution/LaunchPadApp.cdsproj`; that is the receiving Dataverse solution
 project. For PCF or other supported component projects, the helper instead
 runs `pac solution add-reference` for a `.pcfproj` or `.csproj`.

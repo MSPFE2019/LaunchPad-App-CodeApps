@@ -2,7 +2,8 @@
 param(
     [Parameter(Mandatory)]
     [string]$CodeAppProjectPath,
-    [string]$SolutionDirectory = (Join-Path $PSScriptRoot "..\solution")
+    [string]$SolutionDirectory = (Join-Path $PSScriptRoot "..\solution"),
+    [string]$SolutionUniqueName = "LaunchPadApp"
 )
 
 Set-StrictMode -Version Latest
@@ -60,17 +61,35 @@ else {
 }
 
 if ($null -ne $codeAppDirectory) {
+    if (-not (Get-Command pa -ErrorAction SilentlyContinue)) {
+        throw "Power Apps CLI (pa) is required for Code Apps. Install it with 'npm install --global @microsoft/power-apps-cli @microsoft/power-apps'."
+    }
+
+    $solutionJson = & pac solution list --json
+    if ($LASTEXITCODE -ne 0) {
+        throw "pac solution list failed with exit code $LASTEXITCODE."
+    }
+
+    $solution = @($solutionJson | ConvertFrom-Json) |
+        Where-Object { $_.SolutionUniqueName -eq $SolutionUniqueName } |
+        Select-Object -First 1
+
+    if ($null -eq $solution) {
+        throw "Unmanaged solution '$SolutionUniqueName' was not found in the active PAC environment."
+    }
+
     Push-Location $codeAppDirectory
     try {
-        Invoke-PacCommand `
-            -Description "pac code push" `
-            -Arguments @("code", "push", "--solutionName", "LaunchPadApp")
+        & pa app push --solution-id $solution.Id --non-interactive
+        if ($LASTEXITCODE -ne 0) {
+            throw "pa app push failed with exit code $LASTEXITCODE."
+        }
     }
     finally {
         Pop-Location
     }
 
-    Write-Host "Published Code App '$codeAppDirectory' into the unmanaged LaunchPadApp solution."
+    Write-Host "Published Code App '$codeAppDirectory' into the unmanaged $SolutionUniqueName solution."
     return
 }
 
