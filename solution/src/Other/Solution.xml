@@ -82,6 +82,8 @@
     <RootComponents>
       <RootComponent type="1" schemaName="lppac_launchpadapp" behavior="0" />
       <RootComponent type="1" schemaName="lppac_launchpadchoice" behavior="0" />
+      <RootComponent type="20" id="{4edc90ef-d972-45df-983c-ae047e357455}" behavior="0" />
+      <RootComponent type="20" id="{a7921a93-4d78-4c03-a76c-c351588f3ec7}" behavior="0" />
       <RootComponent type="300" schemaName="lppac_launchpad_d39e3" behavior="0" />
       <RootComponent type="62" schemaName="lppac_LaunchPad_Entry" behavior="0" />
       <RootComponent type="80" schemaName="lppac_LaunchPad_Entry" behavior="0" />

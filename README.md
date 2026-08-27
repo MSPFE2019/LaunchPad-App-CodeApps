@@ -193,3 +193,18 @@ Code App:
 
 The provisioning script safely seeds common values and does not duplicate
 records when it is run again.
+
+## Security roles
+
+The unmanaged solution includes two Dataverse security roles:
+
+| Role | LaunchPad App table | LaunchPad Choice table |
+| --- | --- | --- |
+| **LaunchPad Admin** | Organization-level create, read, write, delete, append, and append-to | Organization-level create, read, write, delete, append, and append-to |
+| **LaunchPad Viewer** | Organization-level read only | Organization-level read only |
+
+Assign one of these roles to each user or Microsoft Entra group team in the
+Power Platform admin center. Dataverse enforces these privileges on every
+request, so a Viewer cannot add, update, or delete records even if a request is
+made outside the Code App. Users still need the app shared with them separately
+because app sharing and Dataverse table permissions are distinct.

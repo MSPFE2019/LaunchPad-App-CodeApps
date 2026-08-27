@@ -314,6 +314,11 @@
   white-space: nowrap;
 }
 
+.card-actions {
+  display: flex;
+  border-top: 1px solid var(--cp-border);
+}
+
 .launch-button {
   width: 100%;
   min-height: 50px;
@@ -324,13 +329,32 @@
   color: var(--cp-accent);
   background: var(--cp-accent-soft);
   border: 0;
-  border-top: 1px solid var(--cp-border);
+  border-top: 0;
   font-weight: 700;
 }
 
 .launch-button:hover {
   color: var(--cp-accent-fg);
   background: var(--cp-accent);
+}
+
+.delete-button {
+  min-width: 92px;
+  color: var(--cp-danger);
+  background: var(--cp-surface);
+  border: 0;
+  border-left: 1px solid var(--cp-border);
+  font-weight: 700;
+}
+
+.delete-button:hover {
+  color: var(--cp-accent-fg);
+  background: var(--cp-danger);
+}
+
+.delete-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .message {

@@ -37,6 +37,16 @@
           "entitySetName": "lppac_launchpadchoices",
           "logicalName": "lppac_launchpadchoice",
           "isHidden": false
+        },
+        "environment_39a902ba": {
+          "entitySetName": "Environment",
+          "logicalName": "environment_39a902ba",
+          "isHidden": false
+        },
+        "securityroles": {
+          "entitySetName": "roles",
+          "logicalName": "role",
+          "isHidden": false
         }
       }
     }

@@ -18,5 +18,30 @@ export const dataSourcesInfo = {
     "primaryKey": "lppac_launchpadchoiceid",
     "dataSourceType": "Dataverse",
     "apis": {}
+  },
+  "roles": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "roleid",
+    "dataSourceType": "Dataverse",
+    "apis": {}
+  },
+  "whoami": {
+    "tableId": "",
+    "version": "",
+    "primaryKey": "",
+    "dataSourceType": "Dataverse",
+    "apis": {
+      "WhoAmI": {
+        "path": "/api/data/v9.2/WhoAmI",
+        "method": "GET",
+        "parameters": [],
+        "responseInfo": {
+          "200": {
+            "type": "object"
+          }
+        }
+      }
+    }
   }
 };

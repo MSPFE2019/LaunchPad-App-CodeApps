@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Role id="{a7921a93-4d78-4c03-a76c-c351588f3ec7}" name="LaunchPad Admin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsCustomizable>1</IsCustomizable>
+  <IsAutoAssigned>0</IsAutoAssigned>
+  <RolePrivileges>
+    <RolePrivilege name="prvAppendlppac_LaunchPadApp" level="Global" />
+    <RolePrivilege name="prvAppendlppac_LaunchPadChoice" level="Global" />
+    <RolePrivilege name="prvAppendTolppac_LaunchPadApp" level="Global" />
+    <RolePrivilege name="prvAppendTolppac_LaunchPadChoice" level="Global" />
+    <RolePrivilege name="prvCreatelppac_LaunchPadApp" level="Global" />
+    <RolePrivilege name="prvCreatelppac_LaunchPadChoice" level="Global" />
+    <RolePrivilege name="prvCreateSharePointData" level="Global" />
+    <RolePrivilege name="prvDeletelppac_LaunchPadApp" level="Global" />
+    <RolePrivilege name="prvDeletelppac_LaunchPadChoice" level="Global" />
+    <RolePrivilege name="prvReadlppac_LaunchPadApp" level="Global" />
+    <RolePrivilege name="prvReadlppac_LaunchPadChoice" level="Global" />
+    <RolePrivilege name="prvReadRole" level="Global" />
+    <RolePrivilege name="prvReadSharePointData" level="Global" />
+    <RolePrivilege name="prvReadSharePointDocument" level="Global" />
+    <RolePrivilege name="prvWritelppac_LaunchPadApp" level="Global" />
+    <RolePrivilege name="prvWritelppac_LaunchPadChoice" level="Global" />
+    <RolePrivilege name="prvWriteSharePointData" level="Global" />
+  </RolePrivileges>
+</Role>

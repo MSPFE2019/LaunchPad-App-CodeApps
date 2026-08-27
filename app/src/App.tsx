@@ -4,6 +4,8 @@ import type { LaunchPadAppRecord } from './generated/models/LaunchPadAppsModel'
 import type { Lppac_launchpadchoices } from './generated/models/Lppac_launchpadchoicesModel'
 import { LaunchPadAppsService } from './generated/services/LaunchPadAppsService'
 import { Lppac_launchpadchoicesService } from './generated/services/Lppac_launchpadchoicesService'
+import { RolesService } from './generated/services/RolesService'
+import { WhoAmIService } from './generated/services/WhoAmIService'
 
 const STATUS_ACTIVE = 727000000
 const STATUS_OPTIONS = [
@@ -79,6 +81,8 @@ function App() {
   const [newChoiceType, setNewChoiceType] = useState<ChoiceType>('Audience')
   const [newChoiceValue, setNewChoiceValue] = useState('')
   const [savingChoice, setSavingChoice] = useState(false)
+  const [canManage, setCanManage] = useState(false)
+  const [deletingId, setDeletingId] = useState('')
 
   useEffect(() => {
     async function loadApps() {
@@ -117,6 +121,17 @@ function App() {
         ])
         setApps(appsResult.data ?? [])
         setChoices(choicesResult.data ?? [])
+
+        const identityResult = await WhoAmIService.WhoAmI()
+        const userId = typeof identityResult.data?.UserId === 'string' ? identityResult.data.UserId : ''
+        if (userId) {
+          const roleResult = await RolesService.getAll({
+            select: ['roleid', 'name'],
+            filter: `name eq 'LaunchPad Admin' and systemuserroles_association/any(user:user/systemuserid eq ${userId})`,
+            top: 1,
+          })
+          setCanManage((roleResult.data?.length ?? 0) > 0)
+        }
       } catch (loadError) {
         console.error(loadError)
         setError('LaunchPad could not load applications from Dataverse. Refresh the page or contact support.')
@@ -281,6 +296,25 @@ function App() {
     }
   }
 
+  async function removeApp(app: LaunchPadAppRecord) {
+    const id = app.lppac_launchpadappid
+    const title = text(app.lppac_title)
+    if (!window.confirm(`Remove "${title}" from LaunchPad? This deletes the Dataverse record.`)) return
+
+    try {
+      setDeletingId(id)
+      setError('')
+      await LaunchPadAppsService.delete(id)
+      setApps((current) => current.filter((item) => item.lppac_launchpadappid !== id))
+      setSuccessMessage(`"${title}" was removed from Dataverse.`)
+    } catch (deleteError) {
+      console.error(deleteError)
+      setError('The application could not be removed. Confirm that you have the LaunchPad Admin role.')
+    } finally {
+      setDeletingId('')
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -293,9 +327,11 @@ function App() {
         </a>
         <div className="topbar-actions">
           <span className="environment-pill">Statewide services</span>
-          <button className="add-button" type="button" onClick={() => setShowForm(true)}>
-            Add application
-          </button>
+          {canManage && (
+            <button className="add-button" type="button" onClick={() => setShowForm(true)}>
+              Add application
+            </button>
+          )}
         </div>
       </header>
 
@@ -387,9 +423,21 @@ function App() {
                       {app.lppac_appversion && <><dt>Version</dt><dd>{app.lppac_appversion}</dd></>}
                     </dl>
                   </div>
-                  <button className="launch-button" type="button" onClick={() => launchApp(app)}>
-                    Launch application <span aria-hidden="true">↗</span>
-                  </button>
+                  <div className="card-actions">
+                    <button className="launch-button" type="button" onClick={() => launchApp(app)}>
+                      Launch application <span aria-hidden="true">↗</span>
+                    </button>
+                    {canManage && (
+                      <button
+                        className="delete-button"
+                        type="button"
+                        disabled={deletingId === app.lppac_launchpadappid}
+                        onClick={() => removeApp(app)}
+                      >
+                        {deletingId === app.lppac_launchpadappid ? 'Removing…' : 'Remove'}
+                      </button>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>
