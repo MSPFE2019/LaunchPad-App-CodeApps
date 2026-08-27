@@ -1,9 +1,49 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import './App.css'
 import type { LaunchPadAppRecord } from './generated/models/LaunchPadAppsModel'
 import { LaunchPadAppsService } from './generated/services/LaunchPadAppsService'
 
 const STATUS_ACTIVE = 727000000
+const STATUS_OPTIONS = [
+  { label: 'Active', value: 727000000 },
+  { label: 'Maintenance', value: 727000001 },
+  { label: 'Inactive', value: 727000002 },
+  { label: 'Retired', value: 727000003 },
+]
+
+type AppForm = {
+  title: string
+  appUrl: string
+  appDescription: string
+  appOwner: string
+  appStatus: number
+  audience: string
+  agencyFilter: string
+  office365Group: string
+  licenseDesignation: string
+  appId: string
+  appType: string
+  appVersion: string
+  appUpdate: string
+  category: string
+}
+
+const EMPTY_FORM: AppForm = {
+  title: '',
+  appUrl: '',
+  appDescription: '',
+  appOwner: '',
+  appStatus: STATUS_ACTIVE,
+  audience: '',
+  agencyFilter: '',
+  office365Group: '',
+  licenseDesignation: '',
+  appId: '',
+  appType: '',
+  appVersion: '',
+  appUpdate: '',
+  category: '',
+}
 
 function text(value: string | null | undefined) {
   return value?.trim() ?? ''
@@ -25,6 +65,11 @@ function App() {
   const [query, setQuery] = useState('')
   const [audience, setAudience] = useState('All')
   const [category, setCategory] = useState('All')
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState<AppForm>(EMPTY_FORM)
+  const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
 
   useEffect(() => {
     async function loadApps() {
@@ -106,6 +151,68 @@ function App() {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  function updateForm<K extends keyof AppForm>(field: K, value: AppForm[K]) {
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  function closeForm() {
+    if (saving) return
+    setShowForm(false)
+    setForm(EMPTY_FORM)
+    setFormError('')
+  }
+
+  async function submitForm(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setFormError('')
+    setSuccessMessage('')
+
+    if (!/^https:\/\//i.test(form.appUrl.trim())) {
+      setFormError('App URL must begin with https://.')
+      return
+    }
+
+    try {
+      setSaving(true)
+      const result = await LaunchPadAppsService.create({
+        lppac_title: form.title.trim(),
+        lppac_appurl: form.appUrl.trim(),
+        lppac_appdescription: form.appDescription.trim(),
+        lppac_appowner: form.appOwner.trim() || null,
+        lppac_appstatus: form.appStatus,
+        lppac_audience: form.audience.trim(),
+        lppac_agencyfilter: form.agencyFilter.trim() || null,
+        lppac_office365group: form.office365Group.trim() || null,
+        lppac_licensedesignation: form.licenseDesignation.trim() || null,
+        lppac_appid: form.appId.trim() || null,
+        lppac_apptype: form.appType.trim(),
+        lppac_appversion: form.appVersion.trim() || null,
+        lppac_appupdate: form.appUpdate.trim() || null,
+        lppac_category: form.category.trim() || null,
+      })
+
+      if (!result.data) {
+        throw new Error('Dataverse did not return the created record.')
+      }
+
+      if (form.appStatus === STATUS_ACTIVE) {
+        setApps((current) =>
+          [...current, result.data].sort((left, right) =>
+            text(left.lppac_title).localeCompare(text(right.lppac_title)),
+          ),
+        )
+      }
+      setSuccessMessage(`"${form.title.trim()}" was added to Dataverse.`)
+      setShowForm(false)
+      setForm(EMPTY_FORM)
+    } catch (saveError) {
+      console.error(saveError)
+      setFormError('The application could not be saved to Dataverse. Check your permissions and try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -116,7 +223,12 @@ function App() {
             <small>Application directory</small>
           </span>
         </a>
-        <span className="environment-pill">Statewide services</span>
+        <div className="topbar-actions">
+          <span className="environment-pill">Statewide services</span>
+          <button className="add-button" type="button" onClick={() => setShowForm(true)}>
+            Add application
+          </button>
+        </div>
       </header>
 
       <main>
@@ -140,6 +252,11 @@ function App() {
         </section>
 
         <section className="directory" aria-labelledby="directory-title">
+          {successMessage && (
+            <div className="message success-message" role="status">
+              {successMessage}
+            </div>
+          )}
           <div className="directory-header">
             <div>
               <p className="eyebrow">Directory</p>
@@ -217,6 +334,97 @@ function App() {
         </section>
       </main>
 
+      {showForm && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) closeForm()
+        }}>
+          <section className="form-dialog" role="dialog" aria-modal="true" aria-labelledby="form-title">
+            <div className="form-header">
+              <div>
+                <p className="eyebrow">Dataverse entry</p>
+                <h2 id="form-title">Add an application</h2>
+              </div>
+              <button className="close-button" type="button" onClick={closeForm} aria-label="Close form">
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={submitForm}>
+              {formError && <div className="message error-message" role="alert">{formError}</div>}
+
+              <div className="form-grid">
+                <label>
+                  <span>Title <b aria-hidden="true">*</b></span>
+                  <input required maxLength={200} value={form.title} onChange={(event) => updateForm('title', event.target.value)} />
+                </label>
+                <label>
+                  <span>App URL <b aria-hidden="true">*</b></span>
+                  <input required type="url" placeholder="https://..." maxLength={500} value={form.appUrl} onChange={(event) => updateForm('appUrl', event.target.value)} />
+                </label>
+                <label className="full-width">
+                  <span>App description <b aria-hidden="true">*</b></span>
+                  <textarea required rows={4} maxLength={4000} value={form.appDescription} onChange={(event) => updateForm('appDescription', event.target.value)} />
+                </label>
+                <label>
+                  <span>Audience <b aria-hidden="true">*</b></span>
+                  <input required maxLength={200} placeholder="Statewide or Agency" value={form.audience} onChange={(event) => updateForm('audience', event.target.value)} />
+                </label>
+                <label>
+                  <span>App type <b aria-hidden="true">*</b></span>
+                  <input required maxLength={200} placeholder="Web, Mobile, Power App..." value={form.appType} onChange={(event) => updateForm('appType', event.target.value)} />
+                </label>
+                <label>
+                  <span>App status</span>
+                  <select value={form.appStatus} onChange={(event) => updateForm('appStatus', Number(event.target.value))}>
+                    {STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                  </select>
+                </label>
+                <label>
+                  <span>Category</span>
+                  <input maxLength={200} value={form.category} onChange={(event) => updateForm('category', event.target.value)} />
+                </label>
+                <label>
+                  <span>App owner</span>
+                  <input type="email" maxLength={320} placeholder="owner@agency.gov" value={form.appOwner} onChange={(event) => updateForm('appOwner', event.target.value)} />
+                </label>
+                <label>
+                  <span>Microsoft 365 group</span>
+                  <input type="email" maxLength={320} placeholder="group@agency.gov" value={form.office365Group} onChange={(event) => updateForm('office365Group', event.target.value)} />
+                </label>
+                <label>
+                  <span>Agency filter</span>
+                  <input maxLength={500} placeholder="Department, company, or email domain" value={form.agencyFilter} onChange={(event) => updateForm('agencyFilter', event.target.value)} />
+                </label>
+                <label>
+                  <span>License designation</span>
+                  <input maxLength={200} value={form.licenseDesignation} onChange={(event) => updateForm('licenseDesignation', event.target.value)} />
+                </label>
+                <label>
+                  <span>App ID</span>
+                  <input maxLength={200} value={form.appId} onChange={(event) => updateForm('appId', event.target.value)} />
+                </label>
+                <label>
+                  <span>App version</span>
+                  <input maxLength={100} value={form.appVersion} onChange={(event) => updateForm('appVersion', event.target.value)} />
+                </label>
+                <label className="full-width">
+                  <span>App update notes</span>
+                  <textarea rows={3} maxLength={2000} value={form.appUpdate} onChange={(event) => updateForm('appUpdate', event.target.value)} />
+                </label>
+              </div>
+
+              <p className="required-note"><b>*</b> Required field</p>
+              <div className="form-actions">
+                <button className="cancel-button" type="button" onClick={closeForm} disabled={saving}>Cancel</button>
+                <button className="save-button" type="submit" disabled={saving}>
+                  {saving ? 'Saving…' : 'Save to Dataverse'}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
       <footer>
         <span>LaunchPad</span>
         <span>Powered by Microsoft Power Platform</span>
@@ -226,4 +434,3 @@ function App() {
 }
 
 export default App
-

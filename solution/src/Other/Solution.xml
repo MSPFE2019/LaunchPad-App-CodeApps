@@ -82,7 +82,22 @@
     <RootComponents>
       <RootComponent type="1" schemaName="lppac_launchpadapp" behavior="0" />
       <RootComponent type="300" schemaName="lppac_launchpad_d39e3" behavior="0" />
+      <RootComponent type="62" schemaName="lppac_LaunchPad_Entry" behavior="0" />
+      <RootComponent type="80" schemaName="lppac_LaunchPad_Entry" behavior="0" />
     </RootComponents>
-    <MissingDependencies />
+    <MissingDependencies>
+      <MissingDependency>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)">
+          <package appName="AppModule Web Resources Package" version="2.5">AppModuleWebResources (2.5)</package>
+        </Required>
+        <Dependent type="80" schemaName="lppac_LaunchPad_Entry" displayName="LaunchPad_Entry" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.19)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.25">PowerAppsAppFramework_Anchor (1.0.0.25)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=lppac_LaunchPad_Entry,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="lppac_LaunchPad_Entry" id.settingdefinitionid.uniquename="AppChannel" />
+      </MissingDependency>
+    </MissingDependencies>
   </SolutionManifest>
 </ImportExportXml>

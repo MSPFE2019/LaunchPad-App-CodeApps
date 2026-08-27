@@ -63,6 +63,29 @@
   font-size: 12px;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.add-button,
+.save-button {
+  min-height: 40px;
+  padding: 0 16px;
+  color: var(--cp-accent-fg);
+  background: var(--cp-accent);
+  border: 1px solid var(--cp-accent);
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.add-button:hover,
+.save-button:hover {
+  background: var(--cp-accent-hover);
+  border-color: var(--cp-accent-hover);
+}
+
 .hero {
   padding: 76px 5vw 68px;
   text-align: center;
@@ -323,6 +346,163 @@
   border-color: var(--cp-danger);
 }
 
+.success-message {
+  margin-bottom: 24px;
+  color: var(--cp-success);
+  border-color: var(--cp-success);
+}
+
+.modal-backdrop {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  padding: 32px;
+  display: grid;
+  place-items: center;
+  background: var(--cp-overlay);
+  overflow-y: auto;
+}
+
+.form-dialog {
+  width: min(880px, 100%);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  box-shadow: var(--cp-shadow);
+}
+
+.form-header {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  padding: 24px 28px;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  background: var(--cp-surface);
+  border-bottom: 1px solid var(--cp-border);
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.close-button {
+  width: 40px;
+  height: 40px;
+  color: var(--cp-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: var(--cp-text);
+  background: var(--cp-surface-soft);
+}
+
+.form-dialog form {
+  padding: 28px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 7px;
+}
+
+.form-grid label > span {
+  color: var(--cp-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-grid b,
+.required-note b {
+  color: var(--cp-danger);
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  width: 100%;
+  padding: 10px 12px;
+  color: var(--cp-text);
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 10px;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.form-grid input,
+.form-grid select {
+  min-height: 44px;
+}
+
+.form-grid textarea {
+  resize: vertical;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  border-color: var(--cp-accent);
+  outline: 3px solid var(--cp-highlight);
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.required-note {
+  margin: 20px 0 0;
+  color: var(--cp-text-muted);
+  font-size: 12px;
+}
+
+.form-actions {
+  position: sticky;
+  bottom: 0;
+  margin: 24px -28px -28px;
+  padding: 16px 28px;
+  display: flex;
+  justify-content: end;
+  gap: 12px;
+  background: var(--cp-surface);
+  border-top: 1px solid var(--cp-border);
+}
+
+.cancel-button {
+  min-height: 40px;
+  padding: 0 16px;
+  color: var(--cp-text);
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.cancel-button:hover {
+  background: var(--cp-surface-soft);
+}
+
+.save-button:disabled,
+.cancel-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .empty-state {
   display: grid;
   gap: 6px;
@@ -372,6 +552,10 @@ footer {
     display: none;
   }
 
+  .add-button {
+    padding: 0 12px;
+  }
+
   .hero {
     padding: 56px 20px 48px;
   }
@@ -395,6 +579,35 @@ footer {
   .card-grid {
     grid-template-columns: 1fr;
   }
+
+  .modal-backdrop {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .form-dialog {
+    max-height: 100vh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .form-header,
+  .form-dialog form {
+    padding: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .form-actions {
+    margin: 24px -20px -20px;
+    padding: 16px 20px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -404,4 +617,3 @@ footer {
     animation: none;
   }
 }
-

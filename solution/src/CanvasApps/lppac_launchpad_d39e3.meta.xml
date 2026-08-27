@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CanvasApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Name>lppac_launchpad_d39e3</Name>
-  <AppVersion>2026-08-26T04:48:20Z</AppVersion>
+  <AppVersion>2026-08-27T01:09:51Z</AppVersion>
   <Status>Ready</Status>
   <CreatedByClientVersion>0.0.0.0</CreatedByClientVersion>
   <MinClientVersion>0.0.0.0</MinClientVersion>
@@ -15,7 +15,7 @@
   <Publisher xsi:nil="true"></Publisher>
   <AuthorizationReferences>[]</AuthorizationReferences>
   <ConnectionReferences>{}</ConnectionReferences>
-  <DatabaseReferences>{"default.cds":{"databaseDetails":{"referenceType":"NotSpecified","environmentName":"default.cds","overrideValues":{"status":"NotSpecified","environmentVariableName":""}},"dataSources":{"lppac_launchpadapp":{"entitySetName":"lppac_launchpadapps","logicalName":"lppac_launchpadapp"}}}}</DatabaseReferences>
+  <DatabaseReferences>{"default.cds":{"databaseDetails":{"referenceType":"Environmental","environmentName":"default.cds","overrideValues":{"status":"NotSpecified","environmentVariableName":""}},"dataSources":{"lppac_launchpadapp":{"entitySetName":"lppac_launchpadapps","logicalName":"lppac_launchpadapp"}}}}</DatabaseReferences>
   <AppComponents>[]</AppComponents>
   <AppComponentDependencies>[]</AppComponentDependencies>
   <CanConsumeAppPass>1</CanConsumeAppPass>
@@ -28,7 +28,7 @@
   <IsCustomizable>1</IsCustomizable>
   <CodeAppPackageUris>
     <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/index.html_ContentType_text/html</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-Dw03XwdL.js_ContentType_application/javascript</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-OeBJRqsP.css_ContentType_text/css</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-Cl_sT-6c.css_ContentType_text/css</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-Ml-RwyVc.js_ContentType_application/javascript</CodeAppPackageUri>
   </CodeAppPackageUris>
 </CanvasApp>
