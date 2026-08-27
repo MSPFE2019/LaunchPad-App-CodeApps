@@ -338,4 +338,110 @@ foreach ($column in $columns) {
         -SolutionName $SolutionUniqueName
 }
 
+$choiceTableLogicalName = "lppac_launchpadchoice"
+$escapedChoiceTableLogicalName = Escape-ODataString $choiceTableLogicalName
+$choiceTable = Get-SingleRecord `
+    -Description "LaunchPad choice table" `
+    -RelativePath "EntityDefinitions?`$select=MetadataId,LogicalName,PrimaryNameAttribute,EntitySetName&`$filter=LogicalName eq '$escapedChoiceTableLogicalName'"
+
+if ($null -eq $choiceTable) {
+    Write-Host "Creating table 'lppac_LaunchPadChoice'."
+    $null = Invoke-DataverseRequest `
+        -Method Post `
+        -RelativePath "EntityDefinitions" `
+        -SolutionName $SolutionUniqueName `
+        -Body @{
+            "@odata.type"         = "Microsoft.Dynamics.CRM.EntityMetadata"
+            SchemaName            = "lppac_LaunchPadChoice"
+            DisplayName           = New-LocalizedLabel "LaunchPad Choice"
+            DisplayCollectionName = New-LocalizedLabel "LaunchPad Choices"
+            Description           = New-LocalizedLabel "Configurable Audience, Category, and App Type values used by LaunchPad."
+            OwnershipType         = "OrganizationOwned"
+            IsActivity            = $false
+            HasActivities         = $false
+            HasNotes              = $false
+            Attributes            = @(
+                @{
+                    "@odata.type"     = "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+                    AttributeType     = "String"
+                    AttributeTypeName = @{ Value = "StringType" }
+                    SchemaName        = "lppac_Value"
+                    DisplayName       = New-LocalizedLabel "Value"
+                    Description       = New-LocalizedLabel "Value displayed in a LaunchPad dropdown."
+                    IsPrimaryName     = $true
+                    RequiredLevel     = New-RequiredLevel "ApplicationRequired"
+                    MaxLength         = 200
+                    FormatName        = @{ Value = "Text" }
+                }
+            )
+        }
+
+    $choiceTable = Get-SingleRecord `
+        -Description "LaunchPad choice table" `
+        -RelativePath "EntityDefinitions?`$select=MetadataId,LogicalName,PrimaryNameAttribute,EntitySetName&`$filter=LogicalName eq '$escapedChoiceTableLogicalName'"
+}
+else {
+    Write-Host "Table '$choiceTableLogicalName' already exists."
+}
+
+$choiceTypeColumn = Get-SingleRecord `
+    -Description "column 'lppac_choicetype'" `
+    -RelativePath "EntityDefinitions(LogicalName='$escapedChoiceTableLogicalName')/Attributes?`$select=MetadataId,LogicalName&`$filter=LogicalName eq 'lppac_choicetype'"
+
+if ($null -eq $choiceTypeColumn) {
+    Write-Host "Creating column 'lppac_choicetype'."
+    $null = Invoke-DataverseRequest `
+        -Method Post `
+        -RelativePath "EntityDefinitions(LogicalName='$escapedChoiceTableLogicalName')/Attributes" `
+        -SolutionName $SolutionUniqueName `
+        -Body @{
+            "@odata.type"     = "Microsoft.Dynamics.CRM.StringAttributeMetadata"
+            AttributeType     = "String"
+            AttributeTypeName = @{ Value = "StringType" }
+            SchemaName        = "lppac_ChoiceType"
+            DisplayName       = New-LocalizedLabel "Choice Type"
+            Description       = New-LocalizedLabel "Dropdown that uses this value: Audience, Category, or App Type."
+            RequiredLevel     = New-RequiredLevel "ApplicationRequired"
+            MaxLength         = 50
+            FormatName        = @{ Value = "Text" }
+        }
+}
+else {
+    Write-Host "Column 'lppac_choicetype' already exists."
+}
+
+$defaultChoices = @(
+    @{ Type = "Audience"; Value = "Statewide" }
+    @{ Type = "Audience"; Value = "Agency" }
+    @{ Type = "Category"; Value = "Business" }
+    @{ Type = "Category"; Value = "Collaboration" }
+    @{ Type = "Category"; Value = "Data and Analytics" }
+    @{ Type = "Category"; Value = "Productivity" }
+    @{ Type = "App Type"; Value = "Web Application" }
+    @{ Type = "App Type"; Value = "Power App" }
+    @{ Type = "App Type"; Value = "Mobile Application" }
+)
+
+foreach ($choice in $defaultChoices) {
+    $escapedChoiceType = Escape-ODataString $choice.Type
+    $escapedChoiceValue = Escape-ODataString $choice.Value
+    $existingChoice = Get-SingleRecord `
+        -Description "choice '$($choice.Type): $($choice.Value)'" `
+        -RelativePath "lppac_launchpadchoices?`$select=lppac_launchpadchoiceid&`$filter=lppac_choicetype eq '$escapedChoiceType' and lppac_value eq '$escapedChoiceValue'"
+
+    if ($null -eq $existingChoice) {
+        Write-Host "Creating choice '$($choice.Type): $($choice.Value)'."
+        $null = Invoke-DataverseRequest `
+            -Method Post `
+            -RelativePath "lppac_launchpadchoices" `
+            -Body @{
+                lppac_choicetype = $choice.Type
+                lppac_value      = $choice.Value
+            }
+    }
+    else {
+        Write-Host "Choice '$($choice.Type): $($choice.Value)' already exists."
+    }
+}
+
 Write-Host "Provisioning complete for unmanaged solution '$SolutionUniqueName' in '$DataverseUrl'."

@@ -4,7 +4,8 @@ This repository contains automation for replacing the SharePoint
 `LaunchPadApp` list with a Dataverse table used by the LaunchPad Power Apps Code
 App. It provisions a `LaunchPad` publisher, an unmanaged `LaunchPadApp`
 solution, and an organization-owned `lppac_launchpadapp` table with the
-recovered list schema.
+recovered list schema. It also provisions `lppac_launchpadchoice`, a
+configuration table for Audience, Category, and App Type dropdown values.
 
 Power Platform CLI lowercases the requested publisher prefix `LPPAC`; the
 automation therefore consistently uses `lppac` for logical names such as
@@ -179,3 +180,16 @@ pac solution export `
 | App Version | `lppac_appversion` | Text | No |
 | App Update | `lppac_appupdate` | Text | No |
 | Category | `lppac_category` | Text | No |
+
+### Configurable dropdown values
+
+The `lppac_launchpadchoice` table stores values that users can manage from the
+Code App:
+
+| Display name | Logical name | Type | Required |
+| --- | --- | --- | --- |
+| Value | `lppac_value` | Text (primary name) | Yes |
+| Choice Type | `lppac_choicetype` | Text: Audience, Category, or App Type | Yes |
+
+The provisioning script safely seeds common values and does not duplicate
+records when it is run again.
