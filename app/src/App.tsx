@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import './App.css'
 import type { LaunchPadAppRecord } from './generated/models/LaunchPadAppsModel'
+import type { Lppac_launchpadchoices } from './generated/models/Lppac_launchpadchoicesModel'
 import { LaunchPadAppsService } from './generated/services/LaunchPadAppsService'
+import { Lppac_launchpadchoicesService } from './generated/services/Lppac_launchpadchoicesService'
 
 const STATUS_ACTIVE = 727000000
 const STATUS_OPTIONS = [
@@ -10,6 +12,8 @@ const STATUS_OPTIONS = [
   { label: 'Inactive', value: 727000002 },
   { label: 'Retired', value: 727000003 },
 ]
+const CHOICE_TYPES = ['Audience', 'Category', 'App Type'] as const
+type ChoiceType = (typeof CHOICE_TYPES)[number]
 
 type AppForm = {
   title: string
@@ -70,35 +74,49 @@ function App() {
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [choices, setChoices] = useState<Lppac_launchpadchoices[]>([])
+  const [showChoiceManager, setShowChoiceManager] = useState(false)
+  const [newChoiceType, setNewChoiceType] = useState<ChoiceType>('Audience')
+  const [newChoiceValue, setNewChoiceValue] = useState('')
+  const [savingChoice, setSavingChoice] = useState(false)
 
   useEffect(() => {
     async function loadApps() {
       try {
         setLoading(true)
         setError('')
-        const result = await LaunchPadAppsService.getAll({
-          select: [
-            'lppac_launchpadappid',
-            'lppac_title',
-            'lppac_appurl',
-            'lppac_appdescription',
-            'lppac_appowner',
-            'lppac_appstatus',
-            'lppac_audience',
-            'lppac_agencyfilter',
-            'lppac_office365group',
-            'lppac_licensedesignation',
-            'lppac_appid',
-            'lppac_apptype',
-            'lppac_appversion',
-            'lppac_appupdate',
-            'lppac_category',
-          ],
-          filter: `lppac_appstatus eq ${STATUS_ACTIVE}`,
-          orderBy: ['lppac_title asc'],
-          top: 500,
-        })
-        setApps(result.data ?? [])
+        const [appsResult, choicesResult] = await Promise.all([
+          LaunchPadAppsService.getAll({
+            select: [
+              'lppac_launchpadappid',
+              'lppac_title',
+              'lppac_appurl',
+              'lppac_appdescription',
+              'lppac_appowner',
+              'lppac_appstatus',
+              'lppac_audience',
+              'lppac_agencyfilter',
+              'lppac_office365group',
+              'lppac_licensedesignation',
+              'lppac_appid',
+              'lppac_apptype',
+              'lppac_appversion',
+              'lppac_appupdate',
+              'lppac_category',
+            ],
+            filter: `lppac_appstatus eq ${STATUS_ACTIVE}`,
+            orderBy: ['lppac_title asc'],
+            top: 500,
+          }),
+          Lppac_launchpadchoicesService.getAll({
+            select: ['lppac_launchpadchoiceid', 'lppac_choicetype', 'lppac_value', 'statecode'],
+            filter: 'statecode eq 0',
+            orderBy: ['lppac_choicetype asc', 'lppac_value asc'],
+            top: 500,
+          }),
+        ])
+        setApps(appsResult.data ?? [])
+        setChoices(choicesResult.data ?? [])
       } catch (loadError) {
         console.error(loadError)
         setError('LaunchPad could not load applications from Dataverse. Refresh the page or contact support.')
@@ -140,6 +158,13 @@ function App() {
       return matchesAudience && matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery))
     })
   }, [apps, audience, category, query])
+
+  function choiceValues(type: ChoiceType) {
+    return choices
+      .filter((choice) => choice.lppac_choicetype === type)
+      .map((choice) => choice.lppac_value)
+      .sort((left, right) => left.localeCompare(right))
+  }
 
   function launchApp(app: LaunchPadAppRecord) {
     const url = text(app.lppac_appurl)
@@ -210,6 +235,49 @@ function App() {
       setFormError('The application could not be saved to Dataverse. Check your permissions and try again.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function addChoice() {
+    const value = newChoiceValue.trim()
+    setFormError('')
+    if (!value) {
+      setFormError('Enter a value for the dropdown choice.')
+      return
+    }
+
+    const duplicate = choices.some(
+      (choice) =>
+        choice.lppac_choicetype === newChoiceType &&
+        choice.lppac_value.toLowerCase() === value.toLowerCase(),
+    )
+    if (duplicate) {
+      setFormError(`"${value}" already exists in ${newChoiceType}.`)
+      return
+    }
+
+    try {
+      setSavingChoice(true)
+      const result = await Lppac_launchpadchoicesService.create({
+        lppac_choicetype: newChoiceType,
+        lppac_value: value,
+        statecode: 0,
+        statuscode: 1,
+      })
+      if (!result.data) {
+        throw new Error('Dataverse did not return the created choice.')
+      }
+
+      setChoices((current) => [...current, result.data])
+      if (newChoiceType === 'Audience') updateForm('audience', value)
+      if (newChoiceType === 'Category') updateForm('category', value)
+      if (newChoiceType === 'App Type') updateForm('appType', value)
+      setNewChoiceValue('')
+    } catch (choiceError) {
+      console.error(choiceError)
+      setFormError('The dropdown choice could not be saved. Check your Dataverse permissions and try again.')
+    } finally {
+      setSavingChoice(false)
     }
   }
 
@@ -352,6 +420,38 @@ function App() {
             <form onSubmit={submitForm}>
               {formError && <div className="message error-message" role="alert">{formError}</div>}
 
+              <div className="choice-manager">
+                <button
+                  className="choice-manager-toggle"
+                  type="button"
+                  aria-expanded={showChoiceManager}
+                  onClick={() => setShowChoiceManager((current) => !current)}
+                >
+                  <span>
+                    <strong>Manage dropdown choices</strong>
+                    <small>Add Audience, Category, or App Type values.</small>
+                  </span>
+                  <span aria-hidden="true">{showChoiceManager ? '−' : '+'}</span>
+                </button>
+                {showChoiceManager && (
+                  <div className="choice-manager-fields">
+                    <label>
+                      <span>Choice type</span>
+                      <select value={newChoiceType} onChange={(event) => setNewChoiceType(event.target.value as ChoiceType)}>
+                        {CHOICE_TYPES.map((type) => <option key={type}>{type}</option>)}
+                      </select>
+                    </label>
+                    <label>
+                      <span>New value</span>
+                      <input maxLength={200} value={newChoiceValue} onChange={(event) => setNewChoiceValue(event.target.value)} />
+                    </label>
+                    <button className="add-choice-button" type="button" onClick={addChoice} disabled={savingChoice}>
+                      {savingChoice ? 'Adding…' : 'Add choice'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="form-grid">
                 <label>
                   <span>Title <b aria-hidden="true">*</b></span>
@@ -367,11 +467,17 @@ function App() {
                 </label>
                 <label>
                   <span>Audience <b aria-hidden="true">*</b></span>
-                  <input required maxLength={200} placeholder="Statewide or Agency" value={form.audience} onChange={(event) => updateForm('audience', event.target.value)} />
+                  <select required value={form.audience} onChange={(event) => updateForm('audience', event.target.value)}>
+                    <option value="">Select audience</option>
+                    {choiceValues('Audience').map((value) => <option key={value}>{value}</option>)}
+                  </select>
                 </label>
                 <label>
                   <span>App type <b aria-hidden="true">*</b></span>
-                  <input required maxLength={200} placeholder="Web, Mobile, Power App..." value={form.appType} onChange={(event) => updateForm('appType', event.target.value)} />
+                  <select required value={form.appType} onChange={(event) => updateForm('appType', event.target.value)}>
+                    <option value="">Select app type</option>
+                    {choiceValues('App Type').map((value) => <option key={value}>{value}</option>)}
+                  </select>
                 </label>
                 <label>
                   <span>App status</span>
@@ -381,7 +487,10 @@ function App() {
                 </label>
                 <label>
                   <span>Category</span>
-                  <input maxLength={200} value={form.category} onChange={(event) => updateForm('category', event.target.value)} />
+                  <select value={form.category} onChange={(event) => updateForm('category', event.target.value)}>
+                    <option value="">Select category</option>
+                    {choiceValues('Category').map((value) => <option key={value}>{value}</option>)}
+                  </select>
                 </label>
                 <label>
                   <span>App owner</span>

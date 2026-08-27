@@ -2,5 +2,8 @@
 <EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <EntityRelationship Name="lk_lppac_launchpadapp_createdby" />
   <EntityRelationship Name="lk_lppac_launchpadapp_modifiedby" />
+  <EntityRelationship Name="lk_lppac_launchpadchoice_createdby" />
+  <EntityRelationship Name="lk_lppac_launchpadchoice_modifiedby" />
   <EntityRelationship Name="organization_lppac_launchpadapp" />
+  <EntityRelationship Name="organization_lppac_launchpadchoice" />
 </EntityRelationships>

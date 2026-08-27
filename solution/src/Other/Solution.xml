@@ -81,6 +81,7 @@
     </Publisher>
     <RootComponents>
       <RootComponent type="1" schemaName="lppac_launchpadapp" behavior="0" />
+      <RootComponent type="1" schemaName="lppac_launchpadchoice" behavior="0" />
       <RootComponent type="300" schemaName="lppac_launchpad_d39e3" behavior="0" />
       <RootComponent type="62" schemaName="lppac_LaunchPad_Entry" behavior="0" />
       <RootComponent type="80" schemaName="lppac_LaunchPad_Entry" behavior="0" />

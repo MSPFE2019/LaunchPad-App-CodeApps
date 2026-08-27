@@ -32,6 +32,11 @@
           "entitySetName": "lppac_launchpadapps",
           "logicalName": "lppac_launchpadapp",
           "isHidden": false
+        },
+        "launchpadchoices": {
+          "entitySetName": "lppac_launchpadchoices",
+          "logicalName": "lppac_launchpadchoice",
+          "isHidden": false
         }
       }
     }

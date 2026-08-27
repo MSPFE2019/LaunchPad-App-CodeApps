@@ -5,6 +5,11 @@ application records from the Dataverse `lppac_launchpadapp` table. It supports
 text search, audience and category filters, responsive application cards, and
 HTTPS launch links.
 
+The application entry form loads Audience, Category, and App Type dropdowns
+from `lppac_launchpadchoice`. Use **Manage dropdown choices** in that form to
+add shared values directly to Dataverse; the new value is selected
+automatically for the current application.
+
 ## Local development
 
 ```powershell

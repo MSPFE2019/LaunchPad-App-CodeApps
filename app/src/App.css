@@ -410,6 +410,91 @@
   padding: 28px;
 }
 
+.choice-manager {
+  margin-bottom: 24px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+}
+
+.choice-manager-toggle {
+  width: 100%;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--cp-text);
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+
+.choice-manager-toggle strong,
+.choice-manager-toggle small {
+  display: block;
+}
+
+.choice-manager-toggle small {
+  margin-top: 3px;
+  color: var(--cp-text-muted);
+}
+
+.choice-manager-toggle > span:last-child {
+  color: var(--cp-accent);
+  font-size: 24px;
+}
+
+.choice-manager-fields {
+  padding: 0 16px 16px;
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.choice-manager-fields label {
+  display: grid;
+  gap: 7px;
+}
+
+.choice-manager-fields label > span {
+  color: var(--cp-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.choice-manager-fields input,
+.choice-manager-fields select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  color: var(--cp-text);
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+.add-choice-button {
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border: 1px solid var(--cp-accent);
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.add-choice-button:hover {
+  color: var(--cp-accent-fg);
+  background: var(--cp-accent);
+}
+
+.add-choice-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -597,6 +682,10 @@ footer {
   }
 
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .choice-manager-fields {
     grid-template-columns: 1fr;
   }
 
