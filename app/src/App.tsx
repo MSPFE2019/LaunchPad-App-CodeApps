@@ -18,6 +18,7 @@ const STATUS_OPTIONS = [
 ]
 const CHOICE_TYPES = ['Audience', 'Category', 'App Type'] as const
 type ChoiceType = (typeof CHOICE_TYPES)[number]
+type CardView = 'grid' | 'list'
 
 type AppForm = {
   title: string
@@ -204,6 +205,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [audience, setAudience] = useState('All')
   const [category, setCategory] = useState('All')
+  const [cardView, setCardView] = useState<CardView>('grid')
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<AppForm>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
@@ -269,7 +271,7 @@ function App() {
         }
       } catch (loadError) {
         console.error(loadError)
-        setError('LaunchPad could not load applications from Dataverse. Refresh the page or contact support.')
+        setError('Launch App could not load applications from Dataverse. Refresh the page or contact support.')
       } finally {
         setLoading(false)
       }
@@ -475,7 +477,7 @@ function App() {
   async function removeApp(app: LaunchPadAppRecord) {
     const id = app.lppac_launchpadappid
     const title = text(app.lppac_title)
-    if (!window.confirm(`Remove "${title}" from LaunchPad? This deletes the Dataverse record.`)) return
+    if (!window.confirm(`Remove "${title}" from Launch App? This deletes the Dataverse record.`)) return
 
     try {
       setDeletingId(id)
@@ -494,15 +496,14 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <a className="brand" href="/" aria-label="LaunchPad home">
-          <span className="brand-mark" aria-hidden="true">LP</span>
+        <a className="brand" href="/" aria-label="Launch App home">
+          <span className="brand-mark" aria-hidden="true">LA</span>
           <span>
-            <strong>LaunchPad</strong>
+            <strong>Launch App</strong>
             <small>Application directory</small>
           </span>
         </a>
         <div className="topbar-actions">
-          <span className="environment-pill">Statewide services</span>
           {canManage && (
             <button className="add-button" type="button" onClick={() => setShowForm(true)}>
               Add application
@@ -573,16 +574,32 @@ function App() {
                 Clear filters
               </button>
             )}
+            <div className="view-controls" role="group" aria-label="Application card view">
+              <button
+                type="button"
+                aria-pressed={cardView === 'grid'}
+                onClick={() => setCardView('grid')}
+              >
+                <span aria-hidden="true">▦</span> Grid
+              </button>
+              <button
+                type="button"
+                aria-pressed={cardView === 'list'}
+                onClick={() => setCardView('list')}
+              >
+                <span aria-hidden="true">☰</span> List
+              </button>
+            </div>
           </div>
 
           {error && <div className="message error-message" role="alert">{error}</div>}
 
           {loading ? (
-            <div className="card-grid" aria-label="Loading applications">
+            <div className={`card-grid card-grid--${cardView}`} aria-label="Loading applications">
               {Array.from({ length: 6 }, (_, index) => <div className="app-card skeleton" key={index} />)}
             </div>
           ) : filteredApps.length > 0 ? (
-            <div className="card-grid">
+            <div className={`card-grid card-grid--${cardView}`}>
               {filteredApps.map((app) => (
                 <article className="app-card" key={app.lppac_launchpadappid}>
                   <div className="card-topline">
@@ -601,7 +618,7 @@ function App() {
                   </div>
                   <div className="card-actions">
                     <button className="launch-button" type="button" onClick={() => launchApp(app)}>
-                      Launch app <span aria-hidden="true">↗</span>
+                      Launch App <span aria-hidden="true">↗</span>
                     </button>
                     <button className="details-button" type="button" onClick={() => setDetailApp(app)}>
                       View details
@@ -785,15 +802,20 @@ function App() {
                 <dt>Owner</dt><dd>{text(detailApp.lppac_appowner) || 'Not specified'}</dd>
                 <dt>Agency filter</dt><dd>{text(detailApp.lppac_agencyfilter) || 'Not specified'}</dd>
               </dl>
-              <button className="add-button" type="button" onClick={() => launchApp(detailApp)}>Launch app ↗</button>
+              <button className="add-button" type="button" onClick={() => launchApp(detailApp)}>Launch App ↗</button>
             </div>
           </section>
         </div>
       )}
 
       <footer>
-        <span>LaunchPad</span>
-        <span>Powered by Microsoft Power Platform</span>
+        <span>Launch App</span>
+        <span className="footer-links">
+          <a href="https://github.com/MSPFE2019/LaunchPad-App-CodeApps" target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+          <span>Powered by Microsoft Power Platform</span>
+        </span>
       </footer>
     </div>
   )

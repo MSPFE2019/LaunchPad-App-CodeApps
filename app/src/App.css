@@ -250,10 +250,74 @@
   background: var(--cp-accent-soft);
 }
 
+.view-controls {
+  margin-left: auto;
+  padding: 3px;
+  display: flex;
+  gap: 2px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+}
+
+.view-controls button {
+  height: 32px;
+  padding: 0 10px;
+  color: var(--cp-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  font-weight: 600;
+}
+
+.view-controls button:hover {
+  color: var(--cp-text);
+}
+
+.view-controls button[aria-pressed="true"] {
+  color: var(--cp-accent);
+  background: var(--cp-surface);
+  box-shadow: 0 0 2px var(--cp-border), 0 1px 2px var(--cp-border);
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
+}
+
+.card-grid--list {
+  grid-template-columns: 1fr;
+}
+
+.card-grid--list .app-card {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr) auto;
+}
+
+.card-grid--list .card-topline {
+  padding: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-grid--list .card-content {
+  padding-left: 0;
+}
+
+.card-grid--list .description {
+  min-height: 0;
+  margin: 8px 0 12px;
+}
+
+.card-grid--list .card-actions {
+  min-width: 320px;
+  align-self: stretch;
+  border-top: 0;
+  border-left: 1px solid var(--cp-border);
 }
 
 .app-card {
@@ -862,6 +926,22 @@ footer {
   font-size: 12px;
 }
 
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.footer-links a {
+  color: var(--cp-text-muted);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--cp-link);
+  text-decoration: underline;
+}
+
 @keyframes pulse {
   from { opacity: 0.55; }
   to { opacity: 1; }
@@ -870,6 +950,20 @@ footer {
 @media (max-width: 900px) {
   .card-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card-grid--list {
+    grid-template-columns: 1fr;
+  }
+
+  .card-grid--list .app-card {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .card-grid--list .card-actions {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--cp-border);
+    border-left: 0;
   }
 }
 
@@ -908,8 +1002,28 @@ footer {
     min-width: 0;
   }
 
+  .view-controls {
+    width: fit-content;
+    margin-left: 0;
+  }
+
   .card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .card-grid--list .app-card {
+    display: flex;
+  }
+
+  .card-grid--list .card-topline {
+    padding: 20px 20px 0;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  .card-grid--list .card-content {
+    padding: 20px;
   }
 
   .metrics {
@@ -952,6 +1066,12 @@ footer {
   .form-actions {
     margin: 24px -20px -20px;
     padding: 16px 20px;
+  }
+
+  .footer-links {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
   }
 }
 

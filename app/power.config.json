@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "appId": "c104b1ce-3019-4a62-9b12-f8ab2694daab",
-  "appDisplayName": "LaunchPad",
+  "appDisplayName": "Launch App",
   "region": "gccmoderate",
   "appType": "CodeApp",
   "description": "Search and launch approved applications stored in Dataverse.",

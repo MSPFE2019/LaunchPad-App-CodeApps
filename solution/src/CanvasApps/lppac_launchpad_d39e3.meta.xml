@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CanvasApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Name>lppac_launchpad_d39e3</Name>
-  <AppVersion>2026-08-28T16:39:02Z</AppVersion>
+  <AppVersion>2026-08-28T16:53:44Z</AppVersion>
   <Status>Ready</Status>
   <CreatedByClientVersion>0.0.0.0</CreatedByClientVersion>
   <MinClientVersion>0.0.0.0</MinClientVersion>
@@ -9,7 +9,7 @@
   <IsCdsUpgraded>0</IsCdsUpgraded>
   <GalleryItemId xsi:nil="true"></GalleryItemId>
   <BackgroundColor>RGBA(255,255,255,1)</BackgroundColor>
-  <DisplayName>LaunchPad</DisplayName>
+  <DisplayName>Launch App</DisplayName>
   <Description>Search and launch approved applications stored in Dataverse.</Description>
   <CommitMessage xsi:nil="true"></CommitMessage>
   <Publisher></Publisher>
@@ -28,7 +28,7 @@
   <IsCustomizable>1</IsCustomizable>
   <CodeAppPackageUris>
     <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/index.html_ContentType_text/html</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-BYDu6Wwc.css_ContentType_text/css</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-_2Zz63s8.js_ContentType_application/javascript</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-5H9pF2SR.css_ContentType_text/css</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-CiyQURlR.js_ContentType_application/javascript</CodeAppPackageUri>
   </CodeAppPackageUris>
 </CanvasApp>
