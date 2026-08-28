@@ -1,9 +1,9 @@
-# LaunchPad Code App
+# Launch App Code App
 
-LaunchPad is a React and TypeScript Power Apps Code App that reads active
+Launch App is a React and TypeScript Power Apps Code App that reads active
 application records from the Dataverse `lppac_launchpadapp` table. It supports
-text search, audience and category filters, responsive application cards, and
-HTTPS launch links.
+text search, audience and category filters, Grid and List card views, responsive
+application cards, details dialogs, and HTTPS launch links.
 
 The application entry form loads Audience, Category, and App Type dropdowns
 from `lppac_launchpadchoice`. Use **Manage dropdown choices** in that form to
@@ -15,6 +15,12 @@ App Owner and Microsoft 365 Group use searchable Office 365 Users and Office
 the existing Dataverse text column. Users must have access to the app's
 connector connections, or an administrator must rebind those connection
 references after importing the solution into another environment.
+
+Users with the `LaunchPad Admin` Dataverse role see **Admin view** and **Add
+application** controls. Admin view provides a table for editing one record at a
+time or selecting multiple records to update status, audience, category, and
+app type in bulk. It includes every status so inactive or retired records remain
+manageable. Viewer users see only the read-only application directory.
 
 ## Local development
 

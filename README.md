@@ -1,7 +1,7 @@
-# LaunchPad Power Apps Code App
+# Launch App Power Apps Code App
 
 This repository contains automation for replacing the SharePoint
-`LaunchPadApp` list with a Dataverse table used by the LaunchPad Power Apps Code
+`LaunchPadApp` list with a Dataverse table used by the Launch App Power Apps Code
 App. It provisions a `LaunchPad` publisher, an unmanaged `LaunchPadApp`
 solution, and an organization-owned `lppac_launchpadapp` table with the
 recovered list schema. It also provisions `lppac_launchpadchoice`, a
@@ -10,6 +10,24 @@ configuration table for Audience, Category, and App Type dropdown values.
 Power Platform CLI lowercases the requested publisher prefix `LPPAC`; the
 automation therefore consistently uses `lppac` for logical names such as
 `lppac_appurl`.
+
+## Current application
+
+The deployed US Government Power App is
+[Launch App](https://apps.gov.powerapps.us/play/e/49bbfcac-da3f-e270-b01a-908cebe939c4/app/c104b1ce-3019-4a62-9b12-f8ab2694daab?tenantId=5a3479ae-949c-40ec-b00d-7d82a1729e23).
+
+The current experience includes:
+
+- A compact, searchable application directory with audience and category
+  filters, summary metrics, details dialogs, and Grid or List card views.
+- Searchable Microsoft 365 user and group pickers for App Owner and Office 365
+  Group.
+- An Admin-only application form for creating and editing individual records.
+- An Admin-only management table for selecting one, multiple, or all records
+  and updating status, audience, category, or app type in bulk.
+- Management of Active, Maintenance, Inactive, and Retired records while only
+  Active records appear in the public directory.
+- A discreet footer link to this GitHub repository.
 
 ## Prerequisites
 
@@ -199,7 +217,7 @@ Code App:
 The provisioning script safely seeds common values and does not duplicate
 records when it is run again.
 
-## Security roles
+## Security roles and Admin view
 
 The unmanaged solution includes two Dataverse security roles:
 
@@ -213,3 +231,9 @@ Power Platform admin center. Dataverse enforces these privileges on every
 request, so a Viewer cannot add, update, or delete records even if a request is
 made outside the Code App. Users still need the app shared with them separately
 because app sharing and Dataverse table permissions are distinct.
+
+The **Admin view** and **Add application** controls are rendered only when the
+signed-in user has the `LaunchPad Admin` role. The Admin view supports
+individual edits and bulk updates. Users with `LaunchPad Viewer` can search,
+filter, inspect, and launch applications, but they cannot see the administrative
+controls or modify Dataverse records.
