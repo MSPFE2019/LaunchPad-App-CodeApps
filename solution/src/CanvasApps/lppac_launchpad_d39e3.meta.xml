@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CanvasApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Name>lppac_launchpad_d39e3</Name>
-  <AppVersion>2026-08-28T16:19:07Z</AppVersion>
+  <AppVersion>2026-08-28T16:27:21Z</AppVersion>
   <Status>Ready</Status>
   <CreatedByClientVersion>0.0.0.0</CreatedByClientVersion>
   <MinClientVersion>0.0.0.0</MinClientVersion>
@@ -28,7 +28,7 @@
   <IsCustomizable>1</IsCustomizable>
   <CodeAppPackageUris>
     <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/index.html_ContentType_text/html</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-DGTKwzn-.css_ContentType_text/css</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-DQxhGtnd.js_ContentType_application/javascript</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-CMHxF0A5.js_ContentType_application/javascript</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-DN399FAl.css_ContentType_text/css</CodeAppPackageUri>
   </CodeAppPackageUris>
 </CanvasApp>

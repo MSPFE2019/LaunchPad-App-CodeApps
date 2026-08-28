@@ -77,6 +77,8 @@ function App() {
   const [savingChoice, setSavingChoice] = useState(false)
   const [canManage, setCanManage] = useState(false)
   const [deletingId, setDeletingId] = useState('')
+  const [editingId, setEditingId] = useState('')
+  const [detailApp, setDetailApp] = useState<LaunchPadAppRecord | null>(null)
 
   useEffect(() => {
     async function loadApps() {
@@ -168,6 +170,18 @@ function App() {
     })
   }, [apps, audience, category, query])
 
+  const metrics = useMemo(() => ({
+    applications: apps.length,
+    categories: new Set(apps.map((app) => text(app.lppac_category)).filter(Boolean)).size,
+    owners: new Set(apps.map((app) => text(app.lppac_appowner).toLowerCase()).filter(Boolean)).size,
+  }), [apps])
+
+  function clearFilters() {
+    setQuery('')
+    setAudience('All')
+    setCategory('All')
+  }
+
   function choiceValues(type: ChoiceType) {
     return choices
       .filter((choice) => choice.lppac_choicetype === type)
@@ -192,8 +206,28 @@ function App() {
   function closeForm() {
     if (saving) return
     setShowForm(false)
+    setEditingId('')
     setForm(EMPTY_FORM)
     setFormError('')
+  }
+
+  function editApp(app: LaunchPadAppRecord) {
+    setEditingId(app.lppac_launchpadappid)
+    setForm({
+      title: text(app.lppac_title),
+      appUrl: text(app.lppac_appurl),
+      appDescription: text(app.lppac_appdescription),
+      appOwner: text(app.lppac_appowner),
+      appStatus: app.lppac_appstatus ?? STATUS_ACTIVE,
+      audience: text(app.lppac_audience),
+      agencyFilter: text(app.lppac_agencyfilter),
+      office365Group: text(app.lppac_office365group),
+      appType: text(app.lppac_apptype),
+      appUpdate: text(app.lppac_appupdate),
+      category: text(app.lppac_category),
+    })
+    setFormError('')
+    setShowForm(true)
   }
 
   async function submitForm(event: FormEvent<HTMLFormElement>) {
@@ -208,7 +242,7 @@ function App() {
 
     try {
       setSaving(true)
-      const result = await LaunchPadAppsService.create({
+      const values = {
         lppac_title: form.title.trim(),
         lppac_appurl: form.appUrl.trim(),
         lppac_appdescription: form.appDescription.trim(),
@@ -220,21 +254,33 @@ function App() {
         lppac_apptype: form.appType.trim(),
         lppac_appupdate: form.appUpdate.trim() || null,
         lppac_category: form.category.trim() || null,
-      })
+      }
+      const result = editingId
+        ? await LaunchPadAppsService.update(editingId, values)
+        : await LaunchPadAppsService.create(values)
 
       if (!result.data) {
         throw new Error('Dataverse did not return the created record.')
       }
 
-      if (form.appStatus === STATUS_ACTIVE) {
+      if (editingId) {
+        setApps((current) =>
+          form.appStatus === STATUS_ACTIVE
+            ? current
+              .map((app) => app.lppac_launchpadappid === editingId ? result.data : app)
+              .sort((left, right) => text(left.lppac_title).localeCompare(text(right.lppac_title)))
+            : current.filter((app) => app.lppac_launchpadappid !== editingId),
+        )
+      } else if (form.appStatus === STATUS_ACTIVE) {
         setApps((current) =>
           [...current, result.data].sort((left, right) =>
             text(left.lppac_title).localeCompare(text(right.lppac_title)),
           ),
         )
       }
-      setSuccessMessage(`"${form.title.trim()}" was added to Dataverse.`)
+      setSuccessMessage(`"${form.title.trim()}" was ${editingId ? 'updated' : 'added'} in Dataverse.`)
       setShowForm(false)
+      setEditingId('')
       setForm(EMPTY_FORM)
     } catch (saveError) {
       console.error(saveError)
@@ -328,11 +374,7 @@ function App() {
 
       <main>
         <section className="hero" aria-labelledby="hero-title">
-          <p className="eyebrow">Find your next destination</p>
           <h1 id="hero-title">Applications, all in one place.</h1>
-          <p className="hero-copy">
-            Search approved tools and services, then launch them directly from your personalized directory.
-          </p>
 
           <label className="search-box">
             <span aria-hidden="true">⌕</span>
@@ -347,6 +389,12 @@ function App() {
         </section>
 
         <section className="directory" aria-labelledby="directory-title">
+          <dl className="metrics" aria-label="Directory summary">
+            <div><dt>Applications</dt><dd>{loading ? '—' : metrics.applications}</dd></div>
+            <div><dt>Categories</dt><dd>{loading ? '—' : metrics.categories}</dd></div>
+            <div><dt>Owners</dt><dd>{loading ? '—' : metrics.owners}</dd></div>
+          </dl>
+
           {successMessage && (
             <div className="message success-message" role="status">
               {successMessage}
@@ -380,9 +428,7 @@ function App() {
                 className="clear-button"
                 type="button"
                 onClick={() => {
-                  setQuery('')
-                  setAudience('All')
-                  setCategory('All')
+                  clearFilters()
                 }}
               >
                 Clear filters
@@ -416,17 +462,26 @@ function App() {
                   </div>
                   <div className="card-actions">
                     <button className="launch-button" type="button" onClick={() => launchApp(app)}>
-                      Launch application <span aria-hidden="true">↗</span>
+                      Launch app <span aria-hidden="true">↗</span>
+                    </button>
+                    <button className="details-button" type="button" onClick={() => setDetailApp(app)}>
+                      View details
                     </button>
                     {canManage && (
-                      <button
-                        className="delete-button"
-                        type="button"
-                        disabled={deletingId === app.lppac_launchpadappid}
-                        onClick={() => removeApp(app)}
-                      >
-                        {deletingId === app.lppac_launchpadappid ? 'Removing…' : 'Remove'}
-                      </button>
+                      <details className="overflow-menu">
+                        <summary aria-label={`Manage ${text(app.lppac_title)}`}>•••</summary>
+                        <div>
+                          <button type="button" onClick={() => editApp(app)}>Edit</button>
+                          <button
+                            className="delete-menu-item"
+                            type="button"
+                            disabled={deletingId === app.lppac_launchpadappid}
+                            onClick={() => removeApp(app)}
+                          >
+                            {deletingId === app.lppac_launchpadappid ? 'Deleting…' : 'Delete'}
+                          </button>
+                        </div>
+                      </details>
                     )}
                   </div>
                 </article>
@@ -435,7 +490,13 @@ function App() {
           ) : (
             <div className="message empty-state">
               <strong>No applications found</strong>
-              <span>Try changing your search or filters.</span>
+              <span>Try:</span>
+              <ul>
+                <li>Using different keywords</li>
+                <li>Changing the audience or category</li>
+                <li>Clearing all filters</li>
+              </ul>
+              <button className="empty-clear-button" type="button" onClick={clearFilters}>Clear filters</button>
             </div>
           )}
         </section>
@@ -449,7 +510,7 @@ function App() {
             <div className="form-header">
               <div>
                 <p className="eyebrow">Dataverse entry</p>
-                <h2 id="form-title">Add an application</h2>
+                <h2 id="form-title">{editingId ? 'Edit application' : 'Add an application'}</h2>
               </div>
               <button className="close-button" type="button" onClick={closeForm} aria-label="Close form">
                 ×
@@ -557,6 +618,32 @@ function App() {
                 </button>
               </div>
             </form>
+          </section>
+        </div>
+      )}
+
+      {detailApp && (
+        <div className="modal-backdrop details-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setDetailApp(null)
+        }}>
+          <section className="details-dialog" role="dialog" aria-modal="true" aria-labelledby="details-title">
+            <div className="form-header">
+              <div>
+                <p className="eyebrow">{text(detailApp.lppac_category) || 'Application'}</p>
+                <h2 id="details-title">{text(detailApp.lppac_title)}</h2>
+              </div>
+              <button className="close-button" type="button" onClick={() => setDetailApp(null)} aria-label="Close details">×</button>
+            </div>
+            <div className="details-content">
+              <p>{text(detailApp.lppac_appdescription)}</p>
+              <dl>
+                <dt>Audience</dt><dd>{text(detailApp.lppac_audience) || 'Not specified'}</dd>
+                <dt>App type</dt><dd>{text(detailApp.lppac_apptype) || 'Not specified'}</dd>
+                <dt>Owner</dt><dd>{text(detailApp.lppac_appowner) || 'Not specified'}</dd>
+                <dt>Agency filter</dt><dd>{text(detailApp.lppac_agencyfilter) || 'Not specified'}</dd>
+              </dl>
+              <button className="add-button" type="button" onClick={() => launchApp(detailApp)}>Launch app ↗</button>
+            </div>
           </section>
         </div>
       )}
