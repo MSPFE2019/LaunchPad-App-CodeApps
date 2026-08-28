@@ -1,7 +1,20 @@
-name: Provision Dataverse solution
+name: Provision Dataverse solution (advanced)
 
 on:
   workflow_dispatch:
+    inputs:
+      solution_name:
+        description: Unmanaged solution unique name
+        required: true
+        default: LaunchPadApp
+      publisher_name:
+        description: Publisher unique name
+        required: true
+        default: launchpad
+      table_schema_name:
+        description: Dataverse table schema name
+        required: true
+        default: lppac_LaunchPadApp
 
 permissions:
   contents: read
@@ -21,4 +34,8 @@ jobs:
           DATAVERSE_CLIENT_ID: ${{ secrets.DATAVERSE_CLIENT_ID }}
           DATAVERSE_CLIENT_SECRET: ${{ secrets.DATAVERSE_CLIENT_SECRET }}
           DATAVERSE_TENANT_ID: ${{ secrets.DATAVERSE_TENANT_ID }}
-        run: ./scripts/Provision-Dataverse.ps1
+        run: |
+          ./scripts/Provision-Dataverse.ps1 `
+            -SolutionUniqueName '${{ inputs.solution_name }}' `
+            -PublisherUniqueName '${{ inputs.publisher_name }}' `
+            -TableSchemaName '${{ inputs.table_schema_name }}'

@@ -11,7 +11,7 @@ Power Platform CLI lowercases the requested publisher prefix `LPPAC`; the
 automation therefore consistently uses `lppac` for logical names such as
 `lppac_appurl`.
 
-## Current application
+## Example application
 
 The deployed US Government Power App is
 [Launch App](https://apps.gov.powerapps.us/play/e/49bbfcac-da3f-e270-b01a-908cebe939c4/app/c104b1ce-3019-4a62-9b12-f8ab2694daab?tenantId=5a3479ae-949c-40ec-b00d-7d82a1729e23).
@@ -29,6 +29,79 @@ The current experience includes:
   Active records appear in the public directory.
 - A discreet footer link to this GitHub repository.
 
+## Beginner quick start
+
+You can reuse this project in your own Microsoft 365 tenant. The simplest method
+does not require editing code or installing command-line tools.
+
+1. Use this repository as a template or clone it.
+2. Open **Actions → Build unmanaged solution → Run workflow**.
+3. Download the `LaunchPadApp-unmanaged` artifact when the workflow finishes.
+4. In [Power Apps](https://make.powerapps.com), select your environment, open
+   **Solutions → Import solution**, and upload the downloaded ZIP.
+5. During import, select or create connections for **Office 365 Users** and
+   **Office 365 Groups**.
+6. Assign `LaunchPad Admin` to administrators and `LaunchPad Viewer` to
+   directory users in the Power Platform admin center.
+7. Share the Code App and its Office 365 Users and Office 365 Groups connections
+   with those users.
+
+That is enough for a normal deployment. The sections below cover automated
+provisioning and development.
+
+### Automated Dataverse provisioning
+
+For repeatable deployment through the Dataverse Web API, create a Microsoft
+Entra app registration, configure it as a Dataverse application user, and add
+these repository secrets:
+
+| Secret | Example |
+| --- | --- |
+| `DATAVERSE_URL` | `https://yourorg.crm.dynamics.com` |
+| `DATAVERSE_CLIENT_ID` | Application registration client ID |
+| `DATAVERSE_CLIENT_SECRET` | Application registration client secret |
+| `DATAVERSE_TENANT_ID` | Microsoft Entra tenant ID |
+
+Run **Actions → Provision Dataverse solution (advanced)**. The workflow is safe
+to run again and you can keep its default names.
+
+### Register the Code App in another tenant
+
+The checked-in `app/power.config.json` describes the example deployment and
+contains no credentials. Create a new registration for your environment instead
+of reusing its IDs:
+
+1. Find the unmanaged solution ID with `pac solution list --json`.
+2. Create the two Microsoft 365 connections and copy their IDs:
+
+```powershell
+npm install --global @microsoft/power-apps-cli @microsoft/power-apps
+
+$environmentId = "<your-environment-id>"
+$cloud = "public" # Use "usgov" for GCC
+
+pa auth login --cloud $cloud --environment-id $environmentId
+pa connection create --connector shared_office365users --json
+pa connection create --connector shared_office365groups --json
+```
+
+3. Run the beginner setup script. It registers a new Code App, adds every data
+   source, builds the app, and publishes it to the unmanaged solution:
+
+```powershell
+.\scripts\Configure-CodeApp.ps1 `
+  -EnvironmentId "<your-environment-id>" `
+  -DataverseUrl "https://yourorg.crm.dynamics.com" `
+  -SolutionId "<your-solution-id>" `
+  -UsersConnectionId "<users-connection-id>" `
+  -GroupsConnectionId "<groups-connection-id>" `
+  -Cloud public
+```
+
+Use `-Cloud usgov` for GCC. The script backs up the example
+`power.config.json` to the temporary directory before creating the new
+environment-specific registration.
+
 ## Prerequisites
 
 - Power Platform CLI (`pac`) installed for solution initialization, reference
@@ -44,16 +117,16 @@ The current experience includes:
   role where organizational policy requires least privilege.
 - PowerShell 7 for local script execution.
 
-The intended environment is
-`https://orgd09bf0c1.crm9.dynamics.com/`. No credentials are stored in this
-repository.
+No credentials are stored in this repository. Environment and application IDs
+in `app/power.config.json` identify only the example deployment and are not
+authentication secrets.
 
 ## Provision Dataverse locally
 
 Set credentials in the current process, then run the idempotent provisioner:
 
 ```powershell
-$env:DATAVERSE_URL = "https://orgd09bf0c1.crm9.dynamics.com/"
+$env:DATAVERSE_URL = "https://yourorg.crm.dynamics.com/"
 $env:DATAVERSE_CLIENT_ID = "<application-client-id>"
 $env:DATAVERSE_CLIENT_SECRET = "<application-client-secret>"
 $env:DATAVERSE_TENANT_ID = "<tenant-id>"
@@ -113,7 +186,8 @@ To publish an update, authenticate both CLIs and run the helper:
 
 ```powershell
 pac auth create --environment $env:DATAVERSE_URL
-pa auth login --cloud usgov --environment-id 49bbfcac-da3f-e270-b01a-908cebe939c4
+$cloud = "public" # Use "usgov" for GCC
+pa auth login --cloud $cloud --environment-id "<your-environment-id>"
 
 Set-Location ..
 .\scripts\Initialize-Solution.ps1 -CodeAppProjectPath .\app

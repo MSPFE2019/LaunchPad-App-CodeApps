@@ -1,0 +1,39 @@
+name: Build unmanaged solution
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - morichar-microsoft-dataverse-solution-automation
+    paths:
+      - solution/**
+      - .github/workflows/build-unmanaged-solution.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Power Platform tools
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      - name: Pack unmanaged solution
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          solution-folder: solution/src
+          solution-file: artifacts/LaunchPadApp-unmanaged.zip
+          solution-type: Unmanaged
+
+      - name: Upload solution
+        uses: actions/upload-artifact@v4
+        with:
+          name: LaunchPadApp-unmanaged
+          path: artifacts/LaunchPadApp-unmanaged.zip
+          if-no-files-found: error

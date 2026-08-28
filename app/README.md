@@ -26,7 +26,8 @@ manageable. Viewer users see only the read-only application directory.
 
 ```powershell
 npm install
-pa auth login --cloud usgov --environment-id 49bbfcac-da3f-e270-b01a-908cebe939c4
+$cloud = "public" # Use "usgov" for GCC
+pa auth login --cloud $cloud --environment-id "<your-environment-id>"
 npm run dev
 ```
 
@@ -38,10 +39,11 @@ Platform.
 ```powershell
 npm run lint
 npm run build
-pa app push --solution-id c3fe7801-5e68-49bf-be01-bb72235328fd --non-interactive
+pa app push --solution-id "<your-solution-id>" --non-interactive
 ```
 
 The checked-in `power.config.json` identifies the registered Code App, its
 Dataverse data source, and its Microsoft 365 connector references. The solution
-ID above is the unmanaged `LaunchPadApp` solution in the configured US
-Government environment.
+configuration is an example deployment. For another tenant, run `pa app init`
+and add the Dataverse, Office 365 Users, and Office 365 Groups data sources using
+connections from that tenant before publishing.

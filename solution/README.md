@@ -12,7 +12,7 @@ App into this online solution after its project is available:
 ```powershell
 pac auth create `
   --name LaunchPadDataverse `
-  --environment https://orgd09bf0c1.crm9.dynamics.com/ `
+  --environment $env:DATAVERSE_URL `
   --applicationId $env:DATAVERSE_CLIENT_ID `
   --clientSecret $env:DATAVERSE_CLIENT_SECRET `
   --tenant $env:DATAVERSE_TENANT_ID
@@ -50,8 +50,9 @@ pac solution online-version --solution-name LaunchPadApp
 projects. It does not accept this directory's `LaunchPadApp.cdsproj`; Code Apps
 are associated with the solution by `pa app push --solution-id`. Install the
 Code Apps CLI with
-`npm install --global @microsoft/power-apps-cli @microsoft/power-apps`. For US
-Government environments, sign in with `pa auth login --cloud usgov`.
+`npm install --global @microsoft/power-apps-cli @microsoft/power-apps`. Use
+`pa auth login --cloud public` for commercial environments or
+`pa auth login --cloud usgov` for US Government environments.
 
 Build or pack source as an unmanaged ZIP:
 
