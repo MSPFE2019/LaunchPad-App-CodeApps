@@ -34,6 +34,13 @@ type AppForm = {
   category: string
 }
 
+type BulkEditForm = {
+  appStatus: string
+  audience: string
+  category: string
+  appType: string
+}
+
 const EMPTY_FORM: AppForm = {
   title: '',
   appUrl: '',
@@ -48,6 +55,13 @@ const EMPTY_FORM: AppForm = {
   category: '',
 }
 
+const EMPTY_BULK_EDIT: BulkEditForm = {
+  appStatus: '',
+  audience: '',
+  category: '',
+  appType: '',
+}
+
 function text(value: string | null | undefined) {
   return value?.trim() ?? ''
 }
@@ -59,6 +73,10 @@ function getInitials(title: string) {
     .slice(0, 2)
     .map((word) => word[0]?.toUpperCase())
     .join('')
+}
+
+function getStatusLabel(value: number | null | undefined) {
+  return STATUS_OPTIONS.find((option) => option.value === value)?.label ?? 'Unknown'
 }
 
 type DirectoryOption = {
@@ -217,6 +235,11 @@ function App() {
   const [newChoiceValue, setNewChoiceValue] = useState('')
   const [savingChoice, setSavingChoice] = useState(false)
   const [canManage, setCanManage] = useState(false)
+  const [showAdmin, setShowAdmin] = useState(false)
+  const [selectedAppIds, setSelectedAppIds] = useState<string[]>([])
+  const [bulkEdit, setBulkEdit] = useState<BulkEditForm>(EMPTY_BULK_EDIT)
+  const [bulkSaving, setBulkSaving] = useState(false)
+  const [adminError, setAdminError] = useState('')
   const [deletingId, setDeletingId] = useState('')
   const [editingId, setEditingId] = useState('')
   const [detailApp, setDetailApp] = useState<LaunchPadAppRecord | null>(null)
@@ -245,7 +268,6 @@ function App() {
               'lppac_appupdate',
               'lppac_category',
             ],
-            filter: `lppac_appstatus eq ${STATUS_ACTIVE}`,
             orderBy: ['lppac_title asc'],
             top: 500,
           }),
@@ -280,19 +302,24 @@ function App() {
     void loadApps()
   }, [])
 
-  const audiences = useMemo(
-    () => ['All', ...Array.from(new Set(apps.map((app) => text(app.lppac_audience)).filter(Boolean))).sort()],
+  const activeApps = useMemo(
+    () => apps.filter((app) => app.lppac_appstatus === STATUS_ACTIVE),
     [apps],
   )
 
+  const audiences = useMemo(
+    () => ['All', ...Array.from(new Set(activeApps.map((app) => text(app.lppac_audience)).filter(Boolean))).sort()],
+    [activeApps],
+  )
+
   const categories = useMemo(
-    () => ['All', ...Array.from(new Set(apps.map((app) => text(app.lppac_category)).filter(Boolean))).sort()],
-    [apps],
+    () => ['All', ...Array.from(new Set(activeApps.map((app) => text(app.lppac_category)).filter(Boolean))).sort()],
+    [activeApps],
   )
 
   const filteredApps = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
-    return apps.filter((app) => {
+    return activeApps.filter((app) => {
       const matchesAudience = audience === 'All' || text(app.lppac_audience) === audience
       const matchesCategory = category === 'All' || text(app.lppac_category) === category
       const searchable = [
@@ -309,13 +336,13 @@ function App() {
 
       return matchesAudience && matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery))
     })
-  }, [apps, audience, category, query])
+  }, [activeApps, audience, category, query])
 
   const metrics = useMemo(() => ({
-    applications: apps.length,
-    categories: new Set(apps.map((app) => text(app.lppac_category)).filter(Boolean)).size,
-    owners: new Set(apps.map((app) => text(app.lppac_appowner).toLowerCase()).filter(Boolean)).size,
-  }), [apps])
+    applications: activeApps.length,
+    categories: new Set(activeApps.map((app) => text(app.lppac_category)).filter(Boolean)).size,
+    owners: new Set(activeApps.map((app) => text(app.lppac_appowner).toLowerCase()).filter(Boolean)).size,
+  }), [activeApps])
 
   function clearFilters() {
     setQuery('')
@@ -353,6 +380,7 @@ function App() {
   }
 
   function editApp(app: LaunchPadAppRecord) {
+    setShowAdmin(false)
     setEditingId(app.lppac_launchpadappid)
     setForm({
       title: text(app.lppac_title),
@@ -369,6 +397,59 @@ function App() {
     })
     setFormError('')
     setShowForm(true)
+  }
+
+  function toggleSelectedApp(id: string) {
+    setSelectedAppIds((current) =>
+      current.includes(id) ? current.filter((selectedId) => selectedId !== id) : [...current, id],
+    )
+  }
+
+  async function applyBulkEdit() {
+    setAdminError('')
+    const values = {
+      ...(bulkEdit.appStatus ? { lppac_appstatus: Number(bulkEdit.appStatus) } : {}),
+      ...(bulkEdit.audience ? { lppac_audience: bulkEdit.audience } : {}),
+      ...(bulkEdit.category ? { lppac_category: bulkEdit.category } : {}),
+      ...(bulkEdit.appType ? { lppac_apptype: bulkEdit.appType } : {}),
+    }
+
+    if (selectedAppIds.length === 0) {
+      setAdminError('Select at least one application.')
+      return
+    }
+    if (Object.keys(values).length === 0) {
+      setAdminError('Choose at least one value to update.')
+      return
+    }
+
+    try {
+      setBulkSaving(true)
+      const results = await Promise.all(
+        selectedAppIds.map(async (id) => {
+          const result = await LaunchPadAppsService.update(id, values)
+          if (!result.data) throw new Error(`Dataverse did not return the updated record for ${id}.`)
+          return { id, record: result.data }
+        }),
+      )
+      const updatedRecords = new Map(results.map(({ id, record }) => [id, record]))
+      setApps((current) =>
+        current
+          .map((app) => {
+            const updated = updatedRecords.get(app.lppac_launchpadappid)
+            return updated ? { ...app, ...updated } : app
+          })
+          .sort((left, right) => text(left.lppac_title).localeCompare(text(right.lppac_title))),
+      )
+      setSuccessMessage(`${selectedAppIds.length} ${selectedAppIds.length === 1 ? 'application was' : 'applications were'} updated.`)
+      setSelectedAppIds([])
+      setBulkEdit(EMPTY_BULK_EDIT)
+    } catch (bulkError) {
+      console.error(bulkError)
+      setAdminError('The selected applications could not be updated. Check your permissions and try again.')
+    } finally {
+      setBulkSaving(false)
+    }
   }
 
   async function submitForm(event: FormEvent<HTMLFormElement>) {
@@ -406,13 +487,11 @@ function App() {
 
       if (editingId) {
         setApps((current) =>
-          form.appStatus === STATUS_ACTIVE
-            ? current
-              .map((app) => app.lppac_launchpadappid === editingId ? result.data : app)
-              .sort((left, right) => text(left.lppac_title).localeCompare(text(right.lppac_title)))
-            : current.filter((app) => app.lppac_launchpadappid !== editingId),
+          current
+            .map((app) => app.lppac_launchpadappid === editingId ? result.data : app)
+            .sort((left, right) => text(left.lppac_title).localeCompare(text(right.lppac_title))),
         )
-      } else if (form.appStatus === STATUS_ACTIVE) {
+      } else {
         setApps((current) =>
           [...current, result.data].sort((left, right) =>
             text(left.lppac_title).localeCompare(text(right.lppac_title)),
@@ -505,9 +584,14 @@ function App() {
         </a>
         <div className="topbar-actions">
           {canManage && (
-            <button className="add-button" type="button" onClick={() => setShowForm(true)}>
-              Add application
-            </button>
+            <>
+              <button className="admin-button" type="button" onClick={() => setShowAdmin(true)}>
+                Admin view
+              </button>
+              <button className="add-button" type="button" onClick={() => setShowForm(true)}>
+                Add application
+              </button>
+            </>
           )}
         </div>
       </header>
@@ -657,6 +741,123 @@ function App() {
           )}
         </section>
       </main>
+
+      {showAdmin && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {
+          if (event.target === event.currentTarget && !bulkSaving) setShowAdmin(false)
+        }}>
+          <section className="admin-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+            <div className="form-header">
+              <div>
+                <p className="eyebrow">Administration</p>
+                <h2 id="admin-title">Manage applications</h2>
+              </div>
+              <button
+                className="close-button"
+                type="button"
+                disabled={bulkSaving}
+                onClick={() => setShowAdmin(false)}
+                aria-label="Close admin view"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="admin-content">
+              {adminError && <div className="message error-message" role="alert">{adminError}</div>}
+              <section className="bulk-editor" aria-labelledby="bulk-edit-title">
+                <div className="bulk-editor-heading">
+                  <div>
+                    <h3 id="bulk-edit-title">Bulk edit</h3>
+                    <p>{selectedAppIds.length} selected</p>
+                  </div>
+                  <button
+                    className="save-button"
+                    type="button"
+                    disabled={bulkSaving || selectedAppIds.length === 0}
+                    onClick={applyBulkEdit}
+                  >
+                    {bulkSaving ? 'Applying…' : 'Apply changes'}
+                  </button>
+                </div>
+                <div className="bulk-fields">
+                  <label>
+                    <span>Status</span>
+                    <select value={bulkEdit.appStatus} onChange={(event) => setBulkEdit((current) => ({ ...current, appStatus: event.target.value }))}>
+                      <option value="">No change</option>
+                      {STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Audience</span>
+                    <select value={bulkEdit.audience} onChange={(event) => setBulkEdit((current) => ({ ...current, audience: event.target.value }))}>
+                      <option value="">No change</option>
+                      {choiceValues('Audience').map((value) => <option key={value}>{value}</option>)}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Category</span>
+                    <select value={bulkEdit.category} onChange={(event) => setBulkEdit((current) => ({ ...current, category: event.target.value }))}>
+                      <option value="">No change</option>
+                      {choiceValues('Category').map((value) => <option key={value}>{value}</option>)}
+                    </select>
+                  </label>
+                  <label>
+                    <span>App type</span>
+                    <select value={bulkEdit.appType} onChange={(event) => setBulkEdit((current) => ({ ...current, appType: event.target.value }))}>
+                      <option value="">No change</option>
+                      {choiceValues('App Type').map((value) => <option key={value}>{value}</option>)}
+                    </select>
+                  </label>
+                </div>
+              </section>
+
+              <div className="admin-table-wrap">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th className="select-column">
+                        <input
+                          type="checkbox"
+                          aria-label="Select all applications"
+                          checked={apps.length > 0 && selectedAppIds.length === apps.length}
+                          onChange={(event) => setSelectedAppIds(event.target.checked ? apps.map((app) => app.lppac_launchpadappid) : [])}
+                        />
+                      </th>
+                      <th>Application</th>
+                      <th>Status</th>
+                      <th>Audience</th>
+                      <th>Category</th>
+                      <th>Owner</th>
+                      <th><span className="sr-only">Actions</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apps.map((app) => (
+                      <tr key={app.lppac_launchpadappid}>
+                        <td className="select-column">
+                          <input
+                            type="checkbox"
+                            aria-label={`Select ${text(app.lppac_title)}`}
+                            checked={selectedAppIds.includes(app.lppac_launchpadappid)}
+                            onChange={() => toggleSelectedApp(app.lppac_launchpadappid)}
+                          />
+                        </td>
+                        <td><strong>{text(app.lppac_title)}</strong><small>{text(app.lppac_apptype) || 'Application'}</small></td>
+                        <td><span className="admin-status">{getStatusLabel(app.lppac_appstatus)}</span></td>
+                        <td>{text(app.lppac_audience) || '—'}</td>
+                        <td>{text(app.lppac_category) || '—'}</td>
+                        <td>{text(app.lppac_appowner) || '—'}</td>
+                        <td><button className="table-edit-button" type="button" onClick={() => editApp(app)}>Edit</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
 
       {showForm && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => {

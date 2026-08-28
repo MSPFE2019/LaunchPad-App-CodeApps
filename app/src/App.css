@@ -80,6 +80,21 @@
   font-weight: 700;
 }
 
+.admin-button {
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--cp-text);
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.admin-button:hover {
+  color: var(--cp-accent);
+  border-color: var(--cp-accent);
+}
+
 .add-button:hover,
 .save-button:hover {
   background: var(--cp-accent-hover);
@@ -534,6 +549,151 @@
   box-shadow: var(--cp-shadow);
 }
 
+.admin-dialog {
+  width: min(1180px, 100%);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  box-shadow: var(--cp-shadow);
+}
+
+.admin-content {
+  padding: 24px 28px 28px;
+}
+
+.bulk-editor {
+  margin-bottom: 24px;
+  padding: 18px;
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+}
+
+.bulk-editor-heading {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.bulk-editor-heading h3,
+.bulk-editor-heading p {
+  margin: 0;
+}
+
+.bulk-editor-heading p {
+  margin-top: 3px;
+  color: var(--cp-text-muted);
+  font-size: 13px;
+}
+
+.bulk-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.bulk-fields label {
+  display: grid;
+  gap: 6px;
+}
+
+.bulk-fields label > span {
+  color: var(--cp-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bulk-fields select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 30px 8px 10px;
+  color: var(--cp-text);
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 10px;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 13px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--cp-border);
+}
+
+.admin-table th {
+  color: var(--cp-text-muted);
+  background: var(--cp-surface-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--cp-accent-soft);
+}
+
+.admin-table td strong,
+.admin-table td small {
+  display: block;
+}
+
+.admin-table td small {
+  margin-top: 2px;
+  color: var(--cp-text-muted);
+}
+
+.admin-status {
+  padding: 4px 8px;
+  color: var(--cp-text-muted);
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.select-column {
+  width: 24px;
+}
+
+.select-column input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cp-accent);
+}
+
+.table-edit-button {
+  padding: 7px 12px;
+  color: var(--cp-accent);
+  background: var(--cp-accent-soft);
+  border: 1px solid var(--cp-accent);
+  border-radius: 7px;
+  font-weight: 700;
+}
+
+.table-edit-button:hover {
+  color: var(--cp-accent-fg);
+  background: var(--cp-accent);
+}
+
 .form-header {
   position: sticky;
   z-index: 1;
@@ -965,6 +1125,10 @@ footer {
     border-top: 1px solid var(--cp-border);
     border-left: 0;
   }
+
+  .bulk-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -980,6 +1144,10 @@ footer {
 
   .add-button {
     padding: 0 12px;
+  }
+
+  .admin-button {
+    padding: 0 10px;
   }
 
   .hero {
@@ -1044,6 +1212,25 @@ footer {
     max-height: 100vh;
     border: 0;
     border-radius: 0;
+  }
+
+  .admin-dialog {
+    max-height: 100vh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .admin-content {
+    padding: 20px;
+  }
+
+  .bulk-editor-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .bulk-fields {
+    grid-template-columns: 1fr;
   }
 
   .form-header,
