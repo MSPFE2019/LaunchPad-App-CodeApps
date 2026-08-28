@@ -11,11 +11,6 @@ Power Platform CLI lowercases the requested publisher prefix `LPPAC`; the
 automation therefore consistently uses `lppac` for logical names such as
 `lppac_appurl`.
 
-## Example application
-
-The deployed US Government Power App is
-[Launch App](https://apps.gov.powerapps.us/play/e/49bbfcac-da3f-e270-b01a-908cebe939c4/app/c104b1ce-3019-4a62-9b12-f8ab2694daab?tenantId=5a3479ae-949c-40ec-b00d-7d82a1729e23).
-
 The current experience includes:
 
 - A compact, searchable application directory with audience and category
