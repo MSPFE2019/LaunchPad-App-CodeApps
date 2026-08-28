@@ -26,10 +26,7 @@ type AppForm = {
   audience: string
   agencyFilter: string
   office365Group: string
-  licenseDesignation: string
-  appId: string
   appType: string
-  appVersion: string
   appUpdate: string
   category: string
 }
@@ -43,10 +40,7 @@ const EMPTY_FORM: AppForm = {
   audience: '',
   agencyFilter: '',
   office365Group: '',
-  licenseDesignation: '',
-  appId: '',
   appType: '',
-  appVersion: '',
   appUpdate: '',
   category: '',
 }
@@ -223,10 +217,7 @@ function App() {
         lppac_audience: form.audience.trim(),
         lppac_agencyfilter: form.agencyFilter.trim() || null,
         lppac_office365group: form.office365Group.trim() || null,
-        lppac_licensedesignation: form.licenseDesignation.trim() || null,
-        lppac_appid: form.appId.trim() || null,
         lppac_apptype: form.appType.trim(),
-        lppac_appversion: form.appVersion.trim() || null,
         lppac_appupdate: form.appUpdate.trim() || null,
         lppac_category: form.category.trim() || null,
       })
@@ -552,18 +543,6 @@ function App() {
                   <span>Agency filter</span>
                   <input maxLength={500} placeholder="Department, company, or email domain" value={form.agencyFilter} onChange={(event) => updateForm('agencyFilter', event.target.value)} />
                 </label>
-                <label>
-                  <span>License designation</span>
-                  <input maxLength={200} value={form.licenseDesignation} onChange={(event) => updateForm('licenseDesignation', event.target.value)} />
-                </label>
-                <label>
-                  <span>App ID</span>
-                  <input maxLength={200} value={form.appId} onChange={(event) => updateForm('appId', event.target.value)} />
-                </label>
-                <label>
-                  <span>App version</span>
-                  <input maxLength={100} value={form.appVersion} onChange={(event) => updateForm('appVersion', event.target.value)} />
-                </label>
                 <label className="full-width">
                   <span>App update notes</span>
                   <textarea rows={3} maxLength={2000} value={form.appUpdate} onChange={(event) => updateForm('appUpdate', event.target.value)} />
@@ -574,7 +553,7 @@ function App() {
               <div className="form-actions">
                 <button className="cancel-button" type="button" onClick={closeForm} disabled={saving}>Cancel</button>
                 <button className="save-button" type="submit" disabled={saving}>
-                  {saving ? 'Saving…' : 'Save to Dataverse'}
+                  {saving ? 'Submitting…' : 'Submit'}
                 </button>
               </div>
             </form>
