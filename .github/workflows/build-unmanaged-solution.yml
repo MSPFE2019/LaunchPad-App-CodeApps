@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Power Platform tools
         uses: microsoft/powerplatform-actions/actions-install@v1
@@ -32,7 +32,7 @@ jobs:
           solution-type: Unmanaged
 
       - name: Upload solution
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: LaunchPadApp-unmanaged
           path: artifacts/LaunchPadApp-unmanaged.zip
