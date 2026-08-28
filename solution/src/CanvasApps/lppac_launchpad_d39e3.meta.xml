@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <CanvasApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Name>lppac_launchpad_d39e3</Name>
-  <AppVersion>2026-08-28T16:27:21Z</AppVersion>
+  <AppVersion>2026-08-28T16:39:02Z</AppVersion>
   <Status>Ready</Status>
   <CreatedByClientVersion>0.0.0.0</CreatedByClientVersion>
   <MinClientVersion>0.0.0.0</MinClientVersion>
@@ -14,7 +14,7 @@
   <CommitMessage xsi:nil="true"></CommitMessage>
   <Publisher></Publisher>
   <AuthorizationReferences>[]</AuthorizationReferences>
-  <ConnectionReferences>{}</ConnectionReferences>
+  <ConnectionReferences>{"659a2716-6894-47fa-8169-e68ae7da71b7":{"id":"/providers/Microsoft.PowerApps/apis/shared_office365users","displayName":"Office 365 Users","iconUri":"https://connectorsiconsfairfax.z5.web.core.usgovcloudapi.net/releases/v1.0.1788/1.0.1788.4544/office365users/icon.png","dataSources":["office365users"],"dependencies":[],"dependents":[],"parameterHints":{},"parameterHintsV2":{},"isOnPremiseConnection":false,"bypassConsent":false,"dataSets":{},"apiTier":"Standard","actions":[]},"eb3897b0-e4d4-49f3-a9ec-690ba6c83e6d":{"id":"/providers/Microsoft.PowerApps/apis/shared_office365groups","displayName":"Office 365 Groups","iconUri":"https://connectorsiconsfairfax.z5.web.core.usgovcloudapi.net/1759/1.0.1759.4274/office365groups/icon.png","dataSources":["office365groups"],"dependencies":[],"dependents":[],"parameterHints":{},"parameterHintsV2":{},"isOnPremiseConnection":false,"bypassConsent":false,"dataSets":{},"apiTier":"Standard","actions":[]}}</ConnectionReferences>
   <DatabaseReferences>{"default.cds":{"databaseDetails":{"referenceType":"Environmental","environmentName":"default.cds","overrideValues":{"status":"NotSpecified","environmentVariableName":""}},"dataSources":{"lppac_launchpadapp":{"entitySetName":"lppac_launchpadapps","logicalName":"lppac_launchpadapp"},"launchpadchoices":{"entitySetName":"lppac_launchpadchoices","logicalName":"lppac_launchpadchoice"},"environment_39a902ba":{"entitySetName":"Environment","logicalName":"environment_39a902ba"},"securityroles":{"entitySetName":"roles","logicalName":"role"}}}}</DatabaseReferences>
   <AppComponents>[]</AppComponents>
   <AppComponentDependencies>[]</AppComponentDependencies>
@@ -28,7 +28,7 @@
   <IsCustomizable>1</IsCustomizable>
   <CodeAppPackageUris>
     <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/index.html_ContentType_text/html</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-CMHxF0A5.js_ContentType_application/javascript</CodeAppPackageUri>
-    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-DN399FAl.css_ContentType_text/css</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-BYDu6Wwc.css_ContentType_text/css</CodeAppPackageUri>
+    <CodeAppPackageUri>/CanvasApps/lppac_launchpad_d39e3_CodeAppPackages/assets/index-_2Zz63s8.js_ContentType_application/javascript</CodeAppPackageUri>
   </CodeAppPackageUris>
 </CanvasApp>

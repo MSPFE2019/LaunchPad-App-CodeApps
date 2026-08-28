@@ -59,6 +59,11 @@ specific `systemuser` or team records. The tradeoff is that Dataverse does not
 enforce referential integrity; use lookups instead if ownership relationships
 and model-driven navigation are required.
 
+The Code App presents these fields as searchable people and group pickers
+backed by the Office 365 Users and Office 365 Groups connectors. When importing
+the solution into another environment, bind both connection references to
+connections that app users are permitted to use.
+
 ## Provision with GitHub Actions
 
 Create these repository or `dataverse` environment secrets:

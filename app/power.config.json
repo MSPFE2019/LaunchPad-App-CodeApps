@@ -10,7 +10,24 @@
   "buildEntryPoint": "index.html",
   "logoPath": "Default",
   "localAppUrl": "http://localhost:5173/",
-  "connectionReferences": {},
+  "connectionReferences": {
+    "659a2716-6894-47fa-8169-e68ae7da71b7": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_office365users",
+      "displayName": "Office 365 Users",
+      "dataSources": [
+        "office365users"
+      ],
+      "dataSets": {}
+    },
+    "eb3897b0-e4d4-49f3-a9ec-690ba6c83e6d": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_office365groups",
+      "displayName": "Office 365 Groups",
+      "dataSources": [
+        "office365groups"
+      ],
+      "dataSets": {}
+    }
+  },
   "databaseReferences": {
     "default.cds": {
       "databaseDetails": {

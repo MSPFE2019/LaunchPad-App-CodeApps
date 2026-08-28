@@ -7,11 +7,15 @@
 export * as CommonModels from './models/CommonModels';
 export * as LaunchPadAppsModel from './models/LaunchPadAppsModel';
 export * as Lppac_launchpadchoicesModel from './models/Lppac_launchpadchoicesModel';
+export * as Office365GroupsModel from './models/Office365GroupsModel';
+export * as Office365UsersModel from './models/Office365UsersModel';
 export * as RolesModel from './models/RolesModel';
 export * as WhoAmIModel from './models/WhoAmIModel';
 
 // Services
 export * from './services/LaunchPadAppsService';
 export * from './services/Lppac_launchpadchoicesService';
+export * from './services/Office365GroupsService';
+export * from './services/Office365UsersService';
 export * from './services/RolesService';
 export * from './services/WhoAmIService';

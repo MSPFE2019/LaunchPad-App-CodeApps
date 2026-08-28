@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import './App.css'
 import type { LaunchPadAppRecord } from './generated/models/LaunchPadAppsModel'
 import type { Lppac_launchpadchoices } from './generated/models/Lppac_launchpadchoicesModel'
 import { LaunchPadAppsService } from './generated/services/LaunchPadAppsService'
 import { Lppac_launchpadchoicesService } from './generated/services/Lppac_launchpadchoicesService'
+import { Office365GroupsService } from './generated/services/Office365GroupsService'
+import { Office365UsersService } from './generated/services/Office365UsersService'
 import { RolesService } from './generated/services/RolesService'
 import { WhoAmIService } from './generated/services/WhoAmIService'
 
@@ -56,6 +58,143 @@ function getInitials(title: string) {
     .slice(0, 2)
     .map((word) => word[0]?.toUpperCase())
     .join('')
+}
+
+type DirectoryOption = {
+  id: string
+  displayName: string
+  email: string
+}
+
+type DirectoryPickerProps = {
+  kind: 'user' | 'group'
+  label: string
+  value: string
+  onChange: (value: string) => void
+}
+
+function DirectoryPicker({ kind, label, value, onChange }: DirectoryPickerProps) {
+  const [search, setSearch] = useState(value)
+  const [results, setResults] = useState<DirectoryOption[]>([])
+  const [searching, setSearching] = useState(false)
+  const [pickerError, setPickerError] = useState('')
+  const [open, setOpen] = useState(false)
+  const skipNextValueSync = useRef(false)
+
+  useEffect(() => {
+    if (skipNextValueSync.current) {
+      skipNextValueSync.current = false
+      return
+    }
+    setSearch(value)
+  }, [value])
+
+  useEffect(() => {
+    const term = search.trim()
+    if (!open || term.length < 2 || term === value) {
+      return
+    }
+
+    let cancelled = false
+    const timer = window.setTimeout(async () => {
+      try {
+        setSearching(true)
+        setPickerError('')
+        if (kind === 'user') {
+          const response = await Office365UsersService.SearchUserV2(term, 10, true)
+          if (!cancelled) {
+            setResults((response.data?.value ?? [])
+              .map((user) => ({
+                id: user.Id,
+                displayName: user.DisplayName ?? user.Mail ?? user.UserPrincipalName ?? 'Unnamed user',
+                email: user.Mail ?? user.UserPrincipalName ?? '',
+              }))
+              .filter((user) => user.email))
+          }
+        } else {
+          const escapedTerm = term.replaceAll("'", "''")
+          const response = await Office365GroupsService.ListGroups(
+            false,
+            false,
+            `startswith(displayName,'${escapedTerm}')`,
+            10,
+          )
+          if (!cancelled) {
+            setResults((response.data?.value ?? [])
+              .map((group) => ({
+                id: group.id ?? group.mail ?? '',
+                displayName: group.displayName ?? group.mail ?? 'Unnamed group',
+                email: group.mail ?? '',
+              }))
+              .filter((group) => group.email))
+          }
+        }
+      } catch (searchError) {
+        console.error(searchError)
+        if (!cancelled) {
+          setResults([])
+          setPickerError(`Could not search Microsoft 365 ${kind === 'user' ? 'users' : 'groups'}.`)
+        }
+      } finally {
+        if (!cancelled) setSearching(false)
+      }
+    }, 300)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [kind, open, search, value])
+
+  function selectOption(option: DirectoryOption) {
+    onChange(option.email)
+    setSearch(option.email)
+    setResults([])
+    setOpen(false)
+    setPickerError('')
+  }
+
+  return (
+    <div className="picker-field">
+      <label htmlFor={`${kind}-picker`}>{label}</label>
+      <div className="directory-picker">
+        <input
+          id={`${kind}-picker`}
+          type="search"
+          autoComplete="off"
+          placeholder={`Search Microsoft 365 ${kind === 'user' ? 'users' : 'groups'}`}
+          value={search}
+          onFocus={() => setOpen(true)}
+          onBlur={() => window.setTimeout(() => setOpen(false), 150)}
+          onChange={(event) => {
+            const nextSearch = event.target.value
+            setSearch(nextSearch)
+            if (nextSearch.trim().length < 2) setResults([])
+            if (value) {
+              skipNextValueSync.current = true
+              onChange('')
+            }
+            setOpen(true)
+          }}
+          aria-expanded={open && results.length > 0}
+          aria-controls={`${kind}-picker-results`}
+        />
+        {searching && <span className="picker-loading">Searching…</span>}
+        {open && results.length > 0 && (
+          <div className="picker-results" id={`${kind}-picker-results`} role="listbox">
+            {results.map((option) => (
+              <button key={option.id} type="button" role="option" onMouseDown={() => selectOption(option)}>
+                <span className="picker-avatar" aria-hidden="true">{getInitials(option.displayName)}</span>
+                <span><strong>{option.displayName}</strong><small>{option.email}</small></span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      {pickerError && <small className="picker-error" role="alert">{pickerError}</small>}
+      {!pickerError && search.trim().length === 1 && <small className="picker-hint">Type at least 2 characters.</small>}
+    </div>
+  )
 }
 
 function App() {
@@ -592,14 +731,18 @@ function App() {
                     {choiceValues('Category').map((value) => <option key={value}>{value}</option>)}
                   </select>
                 </label>
-                <label>
-                  <span>App owner</span>
-                  <input type="email" maxLength={320} placeholder="owner@agency.gov" value={form.appOwner} onChange={(event) => updateForm('appOwner', event.target.value)} />
-                </label>
-                <label>
-                  <span>Microsoft 365 group</span>
-                  <input type="email" maxLength={320} placeholder="group@agency.gov" value={form.office365Group} onChange={(event) => updateForm('office365Group', event.target.value)} />
-                </label>
+                <DirectoryPicker
+                  kind="user"
+                  label="App owner"
+                  value={form.appOwner}
+                  onChange={(value) => updateForm('appOwner', value)}
+                />
+                <DirectoryPicker
+                  kind="group"
+                  label="Microsoft 365 group"
+                  value={form.office365Group}
+                  onChange={(value) => updateForm('office365Group', value)}
+                />
                 <label>
                   <span>Agency filter</span>
                   <input maxLength={500} placeholder="Department, company, or email domain" value={form.agencyFilter} onChange={(event) => updateForm('agencyFilter', event.target.value)} />

@@ -603,7 +603,8 @@
   gap: 7px;
 }
 
-.form-grid label > span {
+.form-grid label > span,
+.picker-field > label {
   color: var(--cp-text-muted);
   font-size: 13px;
   font-weight: 600;
@@ -634,6 +635,104 @@
 
 .form-grid textarea {
   resize: vertical;
+}
+
+.picker-field {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+
+.directory-picker {
+  position: relative;
+}
+
+.directory-picker > input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 88px 10px 12px;
+  color: var(--cp-text);
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-strong);
+  border-radius: 10px;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.directory-picker > input:focus {
+  border-color: var(--cp-accent);
+  outline: 3px solid var(--cp-highlight);
+}
+
+.picker-loading {
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  color: var(--cp-text-muted);
+  font-size: 12px;
+}
+
+.picker-results {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  max-height: 260px;
+  padding: 6px;
+  overflow-y: auto;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 10px;
+  box-shadow: var(--cp-shadow);
+}
+
+.picker-results button {
+  width: 100%;
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--cp-text);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+
+.picker-results button:hover,
+.picker-results button:focus {
+  background: var(--cp-accent-soft);
+  outline: none;
+}
+
+.picker-results strong,
+.picker-results small {
+  display: block;
+}
+
+.picker-results small,
+.picker-hint {
+  margin-top: 2px;
+  color: var(--cp-text-muted);
+}
+
+.picker-avatar {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  color: var(--cp-accent-fg);
+  background: var(--cp-accent);
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.picker-error {
+  color: var(--cp-danger);
 }
 
 .form-grid input:focus,

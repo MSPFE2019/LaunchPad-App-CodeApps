@@ -10,6 +10,12 @@ from `lppac_launchpadchoice`. Use **Manage dropdown choices** in that form to
 add shared values directly to Dataverse; the new value is selected
 automatically for the current application.
 
+App Owner and Microsoft 365 Group use searchable Office 365 Users and Office
+365 Groups connector pickers. The selected email address or UPN is stored in
+the existing Dataverse text column. Users must have access to the app's
+connector connections, or an administrator must rebind those connection
+references after importing the solution into another environment.
+
 ## Local development
 
 ```powershell
@@ -29,6 +35,7 @@ npm run build
 pa app push --solution-id c3fe7801-5e68-49bf-be01-bb72235328fd --non-interactive
 ```
 
-The checked-in `power.config.json` identifies the registered Code App and its
-Dataverse data source. The solution ID above is the unmanaged `LaunchPadApp`
-solution in the configured US Government environment.
+The checked-in `power.config.json` identifies the registered Code App, its
+Dataverse data source, and its Microsoft 365 connector references. The solution
+ID above is the unmanaged `LaunchPadApp` solution in the configured US
+Government environment.
