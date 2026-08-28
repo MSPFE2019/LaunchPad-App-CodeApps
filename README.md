@@ -30,9 +30,10 @@ You can reuse this project in your own Microsoft 365 tenant. The simplest method
 does not require editing code or installing command-line tools.
 
 1. Use this repository as a template or clone it.
-2. Open **Actions → Build unmanaged solution → Run workflow**.
-3. Download `LaunchPadApp-unmanaged`. This package lets makers customize the
-   solution after import.
+2. Open the
+   [Launch App v1.0.0 release](https://github.com/MSPFE2019/LaunchPad-App-CodeApps/releases/tag/v1.0.0).
+3. Download `LaunchPadApp-unmanaged.zip` if makers should customize the
+   solution, or `LaunchPadApp-managed.zip` for a controlled deployment.
 4. In [Power Apps](https://make.powerapps.com), select your environment, open
    **Solutions → Import solution**, and upload the downloaded ZIP.
 5. During import, select or create connections for **Office 365 Users** and
@@ -62,6 +63,9 @@ Run **Actions → Provision Dataverse solution (advanced)**. The workflow is saf
 to run again and you can keep its default names.
 
 ### Download managed and unmanaged packages
+
+Ready-to-import managed and unmanaged ZIPs are attached to the
+[latest GitHub release](https://github.com/MSPFE2019/LaunchPad-App-CodeApps/releases/latest).
 
 After adding the four Dataverse secrets above, run **Actions → Export managed
 and unmanaged solutions**. Dataverse creates both authoritative packages:
