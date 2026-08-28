@@ -31,7 +31,8 @@ does not require editing code or installing command-line tools.
 
 1. Use this repository as a template or clone it.
 2. Open **Actions → Build unmanaged solution → Run workflow**.
-3. Download the `LaunchPadApp-unmanaged` artifact when the workflow finishes.
+3. Download `LaunchPadApp-unmanaged`. This package lets makers customize the
+   solution after import.
 4. In [Power Apps](https://make.powerapps.com), select your environment, open
    **Solutions → Import solution**, and upload the downloaded ZIP.
 5. During import, select or create connections for **Office 365 Users** and
@@ -59,6 +60,20 @@ these repository secrets:
 
 Run **Actions → Provision Dataverse solution (advanced)**. The workflow is safe
 to run again and you can keep its default names.
+
+### Download managed and unmanaged packages
+
+After adding the four Dataverse secrets above, run **Actions → Export managed
+and unmanaged solutions**. Dataverse creates both authoritative packages:
+
+- `LaunchPadApp-unmanaged` is intended for development environments where
+  makers need to customize components.
+- `LaunchPadApp-managed` is intended for test and production environments. Its
+  components are controlled by the solution and can be upgraded or uninstalled
+  together.
+
+Managed conversion happens during Dataverse export; it cannot be produced by
+merely changing the package type of unmanaged source files.
 
 ### Register the Code App in another tenant
 

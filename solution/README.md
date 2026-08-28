@@ -63,6 +63,21 @@ pac solution pack `
   --packagetype Unmanaged
 ```
 
+Export a managed ZIP from Dataverse for controlled downstream deployments:
+
+```powershell
+pac solution export `
+  --name LaunchPadApp `
+  --path .\artifacts\LaunchPadApp-managed.zip `
+  --managed true `
+  --overwrite
+```
+
+Managed conversion must be performed by Dataverse; `pac solution pack` cannot
+convert unpacked unmanaged source into a managed solution. GitHub Actions runs
+both authoritative exports through **Export managed and unmanaged solutions**
+and publishes separate downloadable artifacts.
+
 To synchronize this folder from the live unmanaged solution instead, export
 and unpack it:
 

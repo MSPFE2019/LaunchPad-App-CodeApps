@@ -1,0 +1,73 @@
+name: Export managed and unmanaged solutions
+
+on:
+  workflow_dispatch:
+    inputs:
+      solution_name:
+        description: Solution unique name to export
+        required: true
+        default: LaunchPadApp
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: windows-latest
+    env:
+      DATAVERSE_URL: ${{ secrets.DATAVERSE_URL }}
+      DATAVERSE_CLIENT_ID: ${{ secrets.DATAVERSE_CLIENT_ID }}
+      DATAVERSE_CLIENT_SECRET: ${{ secrets.DATAVERSE_CLIENT_SECRET }}
+      DATAVERSE_TENANT_ID: ${{ secrets.DATAVERSE_TENANT_ID }}
+      SOLUTION_NAME: ${{ inputs.solution_name }}
+
+    steps:
+      - name: Install Power Platform tools
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      - name: Authenticate to Dataverse
+        shell: pwsh
+        run: |
+          pac auth create `
+            --name SolutionExport `
+            --environment $env:DATAVERSE_URL `
+            --applicationId $env:DATAVERSE_CLIENT_ID `
+            --clientSecret $env:DATAVERSE_CLIENT_SECRET `
+            --tenant $env:DATAVERSE_TENANT_ID
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pac auth select --name SolutionExport
+
+      - name: Export unmanaged solution
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path artifacts -Force | Out-Null
+          pac solution export `
+            --name $env:SOLUTION_NAME `
+            --path .\artifacts\LaunchPadApp-unmanaged.zip `
+            --managed false `
+            --overwrite
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Export managed solution
+        shell: pwsh
+        run: |
+          pac solution export `
+            --name $env:SOLUTION_NAME `
+            --path .\artifacts\LaunchPadApp-managed.zip `
+            --managed true `
+            --overwrite
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload unmanaged solution
+        uses: actions/upload-artifact@v7
+        with:
+          name: LaunchPadApp-unmanaged
+          path: artifacts/LaunchPadApp-unmanaged.zip
+          if-no-files-found: error
+
+      - name: Upload managed solution
+        uses: actions/upload-artifact@v7
+        with:
+          name: LaunchPadApp-managed
+          path: artifacts/LaunchPadApp-managed.zip
+          if-no-files-found: error

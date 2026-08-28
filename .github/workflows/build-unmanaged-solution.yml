@@ -31,7 +31,7 @@ jobs:
           solution-file: artifacts/LaunchPadApp-unmanaged.zip
           solution-type: Unmanaged
 
-      - name: Upload solution
+      - name: Upload unmanaged solution
         uses: actions/upload-artifact@v7
         with:
           name: LaunchPadApp-unmanaged
