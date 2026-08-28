@@ -29,6 +29,40 @@ The current experience includes:
 You can reuse this project in your own Microsoft 365 tenant. The simplest method
 does not require editing code or installing command-line tools.
 
+### What this app does
+
+Launch App is a central directory for links to your organization's applications
+and services. Instead of sending users a spreadsheet or asking them to remember
+many URLs, you publish one searchable catalog.
+
+**For directory users:**
+
+- Search applications by name, category, owner, audience, or description.
+- Filter the directory by audience and category.
+- Switch between Grid and List views.
+- Open an application's details or launch it in a new browser tab.
+- View only Active applications; Maintenance, Inactive, and Retired records are
+  hidden from the public directory.
+
+**For administrators:**
+
+- Add a new application through a simple form.
+- Select an owner from Microsoft 365 users and a group from Microsoft 365
+  groups.
+- Edit or delete one application.
+- Select multiple applications and update their status, audience, category, or
+  app type together.
+- Add reusable Audience, Category, and App Type dropdown values without changing
+  the app's code.
+- Manage records in every status, including items hidden from directory users.
+
+Application records and dropdown values are stored in Dataverse. The solution
+includes two security roles: `LaunchPad Viewer` provides read-only access, while
+`LaunchPad Admin` provides full control of the app's Dataverse tables. The
+administrative buttons appear only for signed-in users with the Admin role.
+
+### Install it
+
 1. Use this repository as a template or clone it.
 2. Open the
    [Launch App v1.0.0 release](https://github.com/MSPFE2019/LaunchPad-App-CodeApps/releases/tag/v1.0.0).
